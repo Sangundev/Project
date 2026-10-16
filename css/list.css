@@ -1134,3 +1134,186 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
         scroll-behavior: auto !important
     }
 }
+/* ---------- Khung "Ngắm nhìn cận cảnh" (quy trình dự án) ---------- */
+.explore { max-width: 1264px; margin: 0 auto; padding: 90px 22px 40px }
+.explore h2 { font-size: 40px; line-height: 1.1; font-weight: 600; margin-bottom: 40px }
+
+.exp-frame {
+    position: relative;
+    height: 760px;
+    border-radius: 28px;
+    overflow: hidden;
+    background: #1d1d1f
+}
+
+.exp-bg { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; transition: opacity .6s ease }
+.exp-bg.fade { opacity: 0 }
+
+.exp-list {
+    position: absolute;
+    left: 90px;
+    top: 40px;
+    bottom: 40px;
+    width: min(424px, calc(100% - 130px));
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 12px;
+    overflow-y: auto;
+    scrollbar-width: none
+}
+
+.exp-list::-webkit-scrollbar { display: none }
+
+.exp-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: 12px;
+    height: 56px;
+    padding: 0 24px 0 16px;
+    border: 0;
+    border-radius: 28px;
+    background: rgba(40, 40, 42, .72);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    color: #fff;
+    font-size: 17px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .25s ease, transform .35s var(--ease)
+}
+
+.exp-pill:active { transform: scale(.96) }
+
+.exp-plus {
+    width: 24px;
+    height: 24px;
+    display: grid;
+    place-items: center;
+    border: 1.5px solid #fff;
+    border-radius: 50%;
+    font-size: 16px;
+    font-weight: 400;
+    line-height: 1
+}
+
+.exp-card {
+    padding: 24px 28px;
+    border-radius: 28px;
+    background: rgba(60, 60, 62, .78);
+    -webkit-backdrop-filter: blur(24px);
+    backdrop-filter: blur(24px);
+    color: #fff;
+    font-size: 17px;
+    line-height: 1.47
+}
+
+/* mỗi bước = 1 pill + 1 thẻ; đổi chiều cao bằng grid 0fr <-> 1fr nên mượt, không cần biết trước chiều cao */
+.exp-item { width: 100%; display: flex; flex-direction: column; align-items: flex-start }
+
+.exp-fold {
+    width: 100%;
+    display: grid;
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition: grid-template-rows .6s var(--ease), opacity .35s ease
+}
+
+.exp-clip { min-height: 0; overflow: hidden }
+
+.exp-fold-card { grid-template-rows: 0fr; opacity: 0 }
+
+.exp-item.on .exp-fold-card {
+    grid-template-rows: 1fr;
+    opacity: 1;
+    transition-delay: 0s, .12s      /* thẻ bung ra trước, chữ hiện sau một nhịp */
+}
+
+.exp-item.on .exp-fold-pill { grid-template-rows: 0fr; opacity: 0 }
+
+.exp-card b { font-weight: 600 }
+
+.exp-close,
+.exp-arrows button {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(60, 60, 62, .8);
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    color: #fff;
+    cursor: pointer;
+    transition: transform .35s var(--ease), opacity .25s ease
+}
+
+.exp-close { position: absolute; top: 20px; right: 20px; z-index: 2 }
+
+.exp-arrows {
+    position: absolute;
+    left: 27px;
+    top: 50%;
+    transform: translateY(-50%);
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    z-index: 2
+}
+
+.exp-arrows button:disabled { opacity: .35; cursor: default }
+.exp-close:active, .exp-arrows button:active:not(:disabled) { transform: scale(.9); transition-duration: .12s }
+
+@media (hover: hover) {
+    .exp-pill:hover { background: rgba(70, 70, 73, .85) }
+}
+
+/* ---------- Phần quy trình hình thành dự án ---------- */
+.process { max-width: 1264px; margin: 0 auto; padding: 60px 22px 90px }
+.process h2 { font-size: 32px; font-weight: 600; margin-bottom: 32px }
+
+.proc-list {
+    list-style: none;
+    display: grid;
+    grid-template-columns: repeat(5, minmax(0, 1fr));
+    gap: 20px
+}
+
+.proc-list button {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    text-align: left;
+    padding: 24px 20px;
+    border: 0;
+    border-radius: 20px;
+    background: var(--bg2);
+    cursor: pointer;
+    transition: box-shadow .3s ease, transform .35s var(--ease)
+}
+
+.proc-list button:active { transform: scale(.97) }
+.proc-list li.on button { box-shadow: inset 0 0 0 2px #0071e3 }
+.proc-n { font-size: 12px; font-weight: 600; color: var(--new) }
+.proc-t { font-size: 19px; font-weight: 600; line-height: 1.2; margin: 6px 0 10px }
+.proc-d { font-size: 14px; line-height: 1.43; color: var(--mute) }
+
+@media (max-width: 900px) {
+    .exp-frame { height: 680px }
+    .proc-list { grid-template-columns: repeat(2, minmax(0, 1fr)) }
+}
+
+@media (max-width: 560px) {
+    .explore { padding: 60px 16px 24px }
+    .explore h2 { font-size: 32px; margin-bottom: 24px }
+    .exp-frame { height: 640px; border-radius: 24px }
+    .exp-list { left: 16px; right: 16px; width: auto; top: 64px; bottom: 72px; justify-content: flex-start }
+    .exp-arrows { left: auto; right: 16px; top: auto; bottom: 16px; transform: none; flex-direction: row }
+    .process { padding: 40px 16px 60px }
+    .proc-list { grid-template-columns: 1fr }
+}
+.wcard { cursor: pointer }
