@@ -1,36 +1,36 @@
 // Dữ liệu bộ lọc
 const COMPAT = "Khả Năng Tương Thích";
 
-const PILLS_BY_CAT = {
-  "Tất Cả": {
-    "Loại Phụ Kiện": ["Ốp Lưng", "Dây Đeo", "Ví", "Miếng Dán Màn Hình"],
-    [COMPAT]: [
-      "iPhone Duo", "iPhone 18 Pro", "iPhone 18 Pro Max", "iPhone 17 Pro",
-      "iPhone 17 Pro Max", "iPhone Air", "iPhone 17", "iPhone 17e",
-    ],
-    "Nhãn Hiệu": ["Apple", "Beats", "Belkin", "TechWoven"],
-    Màu: ["Đỏ", "Xanh", "Hồng", "Cam", "Xám", "Vàng"],
-    "Chất Liệu": ["Silicon", "TechWoven", "Trong Suốt"],
-  },
-  Mobbile: {
-    "Loại Phụ Kiện": ["Ốp Lưng", "Dây Đeo", "Miếng Dán Màn Hình"],
-    [COMPAT]: ["iPhone 18 Pro", "iPhone 18 Pro Max", "iPhone 17", "iPhone 17e"],
-    Màu: ["Đỏ", "Xanh", "Hồng"],
-  },
-  Other: {
-    "Loại Phụ Kiện": ["Ví"],
-    "Nhãn Hiệu": ["Apple", "Belkin"],
-    "Chất Liệu": ["Silicon", "TechWoven"],
-  },
-  Website: {
-    "Loại Phụ Kiện": ["Ốp Lưng", "Ví"],
-    "Nhãn Hiệu": ["Apple", "Beats"],
-  },
+// nhóm lọc -> tên trường trong dữ liệu sản phẩm
+const GROUP_FIELD = {
+  "Loại Phụ Kiện": "type",
+  [COMPAT]: "fit",
+  "Nhãn Hiệu": "brand",
+  Màu: "colorName",
+  "Chất Liệu": "material",
 };
 
-// trả về bộ lọc của danh mục (không có thì dùng "Tất Cả")
+const toArr = (v) => (v == null || v === "" ? [] : Array.isArray(v) ? v : [v]);
+
+// bộ lọc của danh mục, tự quét PRODUCTS; nhóm nào không có dữ liệu thì không hiện
 function getPills(cat) {
-  return PILLS_BY_CAT[cat] || PILLS_BY_CAT["Tất Cả"];
+  const list = (window.PRODUCTS || []).filter((p) => cat === "Tất Cả" || p.folder === cat);
+  const out = {};
+  for (const [group, field] of Object.entries(GROUP_FIELD)) {
+    const vals = [
+      ...new Set(
+        list.flatMap((p) => toArr(p[field])).map((v) => String(v).trim()).filter(Boolean),
+      ),
+    ];
+    if (!vals.length) continue;
+    vals.sort((a, b) =>
+      group === COMPAT
+        ? b.localeCompare(a, "vi", { numeric: true })
+        : a.localeCompare(b, "vi", { numeric: true }),
+    );
+    out[group] = vals;
+  }
+  return out;
 }
 
 const MORE = [
@@ -74,7 +74,7 @@ function groupHTML(k) {
   const single = k === COMPAT;
   const radio = single && openKey !== "__all"; // desktop: chọn 1, mobile: chọn nhiều
   const base = curPills()[k] || [];
-  const items = single && expanded ? base.concat(MORE) : base;
+  const items = base;
   const checked = state.filters[k] || [];
   return (
     `<div class="opts">${items
@@ -83,7 +83,7 @@ function groupHTML(k) {
           `<label><input type="${radio ? "radio" : "checkbox"}" name="${k}" data-k="${k}" value="${v}" ${checked.includes(v) ? "checked" : ""}>${v}</label>`,
       )
       .join("")}</div>` +
-    (single ? (expanded ? "" : '<button class="more" id="more">Thêm</button>') + FIND : "")
+    (single ? FIND : "")
   );
 }
 
