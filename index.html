@@ -13,13 +13,14 @@
 
   <header class="title">
     <p class="eyebrow">Phụ Kiện</p>
-    <h1 id="pagetitle">iPhone</h1>
+    <h1 id="pagetitle" class="notranslate">iPhone</h1>
   </header>
-<nav id="subnav" class="subnav" aria-label="iPhone"></nav>
+  <nav id="subnav" class="subnav" aria-label="iPhone"></nav>
 
   <div class="filters">
     <div class="filters-in">
-      <button id="mfilter" class="pill mfilter" type="button" aria-expanded="false">Bộ lọc<span id="fcount" class="fcount"></span></button>
+      <button id="mfilter" class="pill mfilter" type="button" aria-expanded="false">Bộ lọc<span id="fcount"
+          class="fcount"></span></button>
       <button id="freset" class="freset" type="button">Đặt lại</button>
       <div id="pills" class="pills"></div>
       <div class="sort">Sắp Xếp Theo:
@@ -33,8 +34,14 @@
   <main>
     <div id="grid" class="grid"></div>
     <div id="wnav" class="wnav">
-      <button id="wprev" type="button" aria-label="Sản phẩm trước"><svg width="9" height="14" viewBox="0 0 10 16"><path d="M8 2L2 8l6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
-      <button id="wnext" type="button" aria-label="Sản phẩm sau"><svg width="9" height="14" viewBox="0 0 10 16"><path d="M2 2l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <button id="wprev" type="button" aria-label="Sản phẩm trước"><svg width="9" height="14" viewBox="0 0 10 16">
+          <path d="M8 2L2 8l6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg></button>
+      <button id="wnext" type="button" aria-label="Sản phẩm sau"><svg width="9" height="14" viewBox="0 0 10 16">
+          <path d="M2 2l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"
+            stroke-linejoin="round" />
+        </svg></button>
     </div>
     <div class="pager">
       <button id="prev" aria-label="Trang trước">&#8249;</button>
@@ -45,10 +52,10 @@
 
   <div id="site-footer"></div>
 
-<!-- loader nạp lần lượt: data-before -> dữ liệu data/ -> data-after -->
-<script src="js/common/loader.js"
-  data-before="js/common/layout.js,js/common/nav.js,js/list/subnav.js,js/list/filters.js"
-  data-after="js/list/app.js,js/common/title.js,js/list/open-detail.js"></script>
+  <!-- loader nạp lần lượt: data-before -> dữ liệu data/ -> data-after -->
+  <script src="js/common/loader.js"
+    data-before="js/common/i18n.js,js/common/langbar.js,js/common/layout.js,js/common/nav.js,js/list/subnav.js,js/list/filters.js"
+    data-after="js/list/app.js,js/common/title.js,js/list/open-detail.js"></script>
 </body>
 
 </html>

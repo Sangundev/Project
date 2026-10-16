@@ -531,11 +531,7 @@ main { max-width: 1440px; margin: 0 auto }
     .gal[data-i="0"] .gal-btn.prev,
     .gal.last .gal-btn.next { opacity: 0; pointer-events: none; transform: scale(.9) }
 }
-/* chỉ hiện nút khi hover (thiết bị có chuột) */
-@media (hover: hover) {
-    .card:hover .gal-btn { opacity: 1; pointer-events: auto }
-    .gal-btn:hover { background: rgba(190, 190, 196, .8) }
-}
+
 
 .dots { display: flex; gap: 6px; margin-bottom: 18px }
 .dots i { width: 9px; height: 9px; border-radius: 50%; display: block }
@@ -1022,10 +1018,7 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
 }
 
   .wimg .gal-dots { top: auto; bottom: 10px; margin: 0 }
-.wcard .gal-btn,
-.wcard .gal-dots { display: none !important }
-.wcard .gal-btn,
-.wcard .gal-dots { display: none !important }
+
   
 
 .wcard .dots { gap: 8px; margin: 28px 0 0 }
@@ -1317,3 +1310,108 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
     .proc-list { grid-template-columns: 1fr }
 }
 .wcard { cursor: pointer }
+/* ---------- Banner chọn ngôn ngữ ---------- */
+.langbar {
+    background: var(--bg2);
+    display: grid;
+    grid-template-rows: 1fr;
+    transition: grid-template-rows .5s var(--ease), opacity .35s ease
+}
+
+.langbar.hide { grid-template-rows: 0fr; opacity: 0 }
+.langbar-clip { min-height: 0; overflow: hidden }
+
+.langbar-in {
+    max-width: 1024px;
+    margin: 0 auto;
+    padding: 18px 22px;
+    display: flex;
+    align-items: center;
+    gap: 20px
+}
+
+.langbar-msg { flex: 1; font-size: 12px; line-height: 1.4; letter-spacing: -.01em; max-width: 420px }
+
+.langbar-sel { position: relative; flex: 0 1 340px; min-width: 0 }
+
+.langbar-sel select {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 100%;
+    height: 40px;
+    padding: 0 40px 0 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #fff url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='10' height='6' viewBox='0 0 10 6'%3E%3Cpath d='M1 1l4 4 4-4' fill='none' stroke='%231d1d1f' stroke-width='1.3'/%3E%3C/svg%3E") right 16px center no-repeat;
+    font-size: 16px;
+    color: var(--text);
+    cursor: pointer
+}
+
+.langbar-go {
+    flex: none;
+    height: 36px;
+    padding: 0 16px;
+    border: 0;
+    border-radius: 8px;
+    background: #1d1d1f;
+    color: #fff;
+    font-size: 14px;
+    cursor: pointer;
+    transition: transform .35s var(--ease), background .25s ease
+}
+
+.langbar-go:active { transform: scale(.96) }
+
+.langbar-x {
+    flex: none;
+    width: 32px;
+    height: 32px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    background: none;
+    color: var(--text);
+    cursor: pointer;
+    opacity: .8
+}
+
+@media (hover: hover) {
+    .langbar-go:hover { background: #333336 }
+    .langbar-x:hover { opacity: 1 }
+}
+
+@media (max-width: 560px) {
+    .langbar-in { flex-wrap: wrap; gap: 12px; padding: 14px 16px }
+    .langbar-msg { flex: 1 1 100%; max-width: none }
+    .langbar-sel { flex: 1 1 0 }
+    .langbar-x { order: 4 }
+}
+
+
+/* ---------- Ẩn giao diện mặc định của Google Translate ---------- */
+.goog-te-banner-frame, .skiptranslate > iframe { display: none !important }
+body { top: 0 !important }
+#goog-gt-tt, .goog-tooltip, .goog-tooltip:hover { display: none !important }
+.goog-text-highlight { background: none !important; box-shadow: none !important }
+/* ---------- Nút đổi ngôn ngữ ---------- */
+.langtoggle {
+    -webkit-appearance: none;
+    appearance: none;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    height: 44px;
+    padding: 0;
+    border: 0;
+    border-radius: 0;
+    background: none;
+    color: inherit;
+    font-size: 12px;
+    cursor: pointer
+}
+
+.langtoggle b { font-weight: 600; opacity: .45; transition: opacity .25s ease }
+.langtoggle i { font-style: normal; opacity: .45 }
+html[lang="vi"] .langtoggle b:first-child,
+html[lang="en"] .langtoggle b:last-child { opacity: 1 }

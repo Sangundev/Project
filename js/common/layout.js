@@ -9,6 +9,7 @@
         </svg></a>
       <ul id="navlinks"></ul>
       <span class="nav-icons">
+        <button type="button" class="langtoggle" aria-label="Language"><b>VI</b><i>/</i><b>EN</b></button>
         <svg width="15" height="44" viewBox="0 0 15 44">
           <circle cx="6" cy="21" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2" />
           <path d="M9.5 24.5 13 28" stroke="currentColor" stroke-width="1.2" />

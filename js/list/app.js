@@ -103,7 +103,7 @@ function card(p, wide) {
     <div class="img">${art(p)}</div>
     <div class="dots">${p.dots.map((c) => `<i style="background:${c}"></i>`).join("")}</div>
     <div class="badge">${p.isNew ? "MỚI" : ""}</div>
-    <a class="name" href="#">${p.name}</a>
+    <a class="name notranslate" href="#">${p.name}</a>
     <div class="price">${vnd(p.price)}</div>
   </article>`;
 }
@@ -119,7 +119,7 @@ function webCard(p) {
   return `<article class="wcard">
     <div class="wimg">${art(p)}</div>
     ${dots}
-    <h3 class="wname">${p.name}</h3>
+    <h3 class="wname notranslate">${p.name}</h3>
     ${p.tagline ? `<p class="wtag">${p.tagline}</p>` : ""}
     ${note ? `<p class="wnote">${note}</p>` : ""}
     <div class="wbtns">
