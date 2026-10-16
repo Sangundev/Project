@@ -1,14 +1,17 @@
-// Mobbile 1
-(window.PRODUCTS ||= []).push({
-  name: "iPhone Duo Folio có Chân Đế - Nâu Xám",
-  price: 3799000,
-  color: "#8d8268",
-  dots: [
-    "#8d8268",
-    "#c9c5bb"
-  ],
-  isNew: 1,
-  kind: "case",
-  brand: "Apple",
-  fit: "Website"
+window.PRODUCTS ||= [];
+PRODUCTS.push({
+  folder: "Website",
+  name: "Website Bán Phụ Kiện iPhone",
+  tagline: "Giao diện mô phỏng trang phụ kiện Apple với bộ lọc và sắp xếp.",
+  note: "HTML, CSS, JavaScript thuần. Responsive cho desktop, tablet và mobile.",
+  url: "https://sangundev.github.io/My_portfolio/",
+  buy: "",
+  imgs: ["assets/system/1.png"],
+  dots: [],
+  type: "Website bán hàng",
+  brand: "SangUnDev",
+  colorName: "Trắng",
+  material: "HTML/CSS/JS",
+  price: 0,
+  isNew: true,
 });

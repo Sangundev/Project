@@ -15,6 +15,8 @@
     --r-bar: 18px;                       /* bo góc thanh dính + panel lọc */
     --ease: cubic-bezier(.32, .72, 0, 1);
     --ease-spring: cubic-bezier(.34, 1.56, .64, 1);
+    --ease-slide: cubic-bezier(.45, .05, .2, 1);   /* êm đầu, êm cuối, dùng cho panel lọc */
+    --dur-slide: .9s;                               /* chỉnh tốc độ xòe panel ở đây */
     interpolate-size: allow-keywords;
 }
 
@@ -185,12 +187,13 @@ h1 { font-size: 80px; line-height: 1.05; font-weight: 600; letter-spacing: -.015
     border-color: var(--line)
 }
 
-/* khi mở: thanh trong suốt, tấm kính duy nhất là .panel */
+/* khi mở: thanh trong suốt NGAY LẬP TỨC, tấm kính duy nhất là .panel */
 .filters.open .filters-in {
     background: transparent;
     -webkit-backdrop-filter: none;
     backdrop-filter: none;
-    border-color: transparent
+    border-color: transparent;
+    transition: none
 }
 
 .filters.open .pill,
@@ -443,6 +446,97 @@ main { max-width: 1440px; margin: 0 auto }
 
 .card:active .img { transform: scale(.97); transition-duration: .15s }
 
+/* ---------- Thư viện ảnh sản phẩm ---------- */
+.gal {
+    --gal-size: 432px;                 /* đổi kích thước ảnh ở đây */
+    position: relative;
+    width: min(100%, var(--gal-size));
+    margin: 0 auto 30px;               /* chừa chỗ cho chấm báo trang bên dưới */
+    overflow-x: clip;                  /* cắt ảnh trượt ra ngoài */
+    overflow-y: visible
+}
+
+.gal-track {
+    display: flex;
+    transition: transform .7s cubic-bezier(.22, .61, .18, 1);   /* êm đầu, giảm tốc mượt ở cuối */
+    will-change: transform;
+    backface-visibility: hidden
+}
+
+.card .img img.pimg,
+.wimg img.pimg {
+    flex: 0 0 100%;
+    display: block;
+    width: 100%;
+    height: auto;
+    aspect-ratio: 1 / 1;
+    object-fit: contain;
+    user-select: none;
+    -webkit-user-drag: none
+}
+
+/* nút ‹ › nằm giữa chiều cao ẢNH, sát hai mép */
+.gal-btn {
+    position: absolute;
+    top: calc(50% - 28px);
+    width: 56px;
+    height: 56px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 0;
+    border-radius: 50%;
+    background: rgba(232, 232, 237, .92);     /* xám sáng đặc */
+    -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
+    color: #424245;                            /* mũi tên xám đậm */
+    cursor: pointer;
+    opacity: 0;
+    pointer-events: none;
+    transform: scale(.9);
+    transition: opacity .35s ease, transform .45s var(--ease), background .25s ease
+}
+
+.gal-btn.prev { left: 4px }
+.gal-btn.next { right: 4px }
+.gal-btn:active { transform: scale(.92); transition-duration: .12s }
+
+/* chấm báo trang: nằm dưới ảnh, không làm lệch nút */
+.gal-dots {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 6px;
+    margin-top: 10px
+}
+
+.gal-dots i {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #fff;
+    box-shadow: inset 0 0 0 1px #86868b;
+    transition: background .35s ease, box-shadow .35s ease
+}
+
+.gal-dots i.on { background: #424245; box-shadow: none }
+
+/* hover (thiết bị có chuột): hiện nút; ảnh đầu ẩn ‹, ảnh cuối ẩn › */
+@media (hover: hover) {
+    .card:hover .gal-btn { opacity: 1; pointer-events: auto; transform: scale(1) }
+    .card:hover .gal-btn:hover { background: rgba(220, 220, 225, .96) }
+    .gal[data-i="0"] .gal-btn.prev,
+    .gal.last .gal-btn.next { opacity: 0; pointer-events: none; transform: scale(.9) }
+}
+/* chỉ hiện nút khi hover (thiết bị có chuột) */
+@media (hover: hover) {
+    .card:hover .gal-btn { opacity: 1; pointer-events: auto }
+    .gal-btn:hover { background: rgba(190, 190, 196, .8) }
+}
+
 .dots { display: flex; gap: 6px; margin-bottom: 18px }
 .dots i { width: 9px; height: 9px; border-radius: 50%; display: block }
 
@@ -587,11 +681,11 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
     /* thanh dính: cân đều trên/dưới */
     .filters.stuck .filters-in { padding: 14px 22px }
 
-    /* giữ đường kẻ ngang khi mở (chưa cuộn); đã cuộn thì ẩn */
-    .filters.open:not(.stuck) { border-bottom-color: var(--line) }
-    .filters.stuck.open { border-bottom-color: transparent }
+    /* khi mở: ẩn đường kẻ ngang ngay lập tức (cả chưa cuộn lẫn đã cuộn) */
+    .filters.open,
+    .filters.stuck.open { border-bottom-color: transparent; transition: none }
 
-    /* panel: chưa cuộn = nằm ngay dưới đường kẻ */
+       /* panel: chưa cuộn = nằm ngay dưới đường kẻ */
     .filters:not(.stuck) .panel {
         top: 100%;
         height: min(75dvh, 410px);
@@ -605,6 +699,50 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
         height: min(75dvh, 476px);
         padding: calc(var(--bar, 70px) + 22px) 64px 34px;
         overflow-y: scroll
+    }
+
+    /* ---- hiệu ứng: xòe từ khung thanh lọc xuống dưới (clip-path) ---- */
+    .filters .panel {
+        clip-path: inset(0 round var(--r-bar));
+        transition: clip-path var(--dur-slide) var(--ease-slide),
+                    display var(--dur-slide) allow-discrete
+    }
+
+        .filters .panel > * {
+        transition: opacity .5s ease .25s
+    }
+
+    .filters .panel[hidden] > * { opacity: 0 }
+
+    @starting-style {
+        .filters .panel > * { opacity: 0 }
+    }
+    /* trạng thái đóng / điểm bắt đầu: chưa cuộn -> thu về mép trên */
+    .filters:not(.stuck) .panel[hidden] {
+        clip-path: inset(0 0 100% 0 round var(--r-bar));
+        opacity: 1;
+        transform: translate3d(-50%, 0, 0)
+    }
+
+    /* trạng thái đóng / điểm bắt đầu: đã cuộn -> chỉ lộ đúng chiều cao thanh lọc */
+    .filters.stuck .panel[hidden] {
+        clip-path: inset(0 0 calc(100% - var(--bar, 70px)) 0 round var(--r-bar));
+        opacity: 1;
+        transform: translate3d(-50%, 0, 0)
+    }
+
+    /* lúc vừa mở (display: none -> block) bắt đầu từ trạng thái đóng ở trên */
+    @starting-style {
+        .filters:not(.stuck) .panel {
+            clip-path: inset(0 0 100% 0 round var(--r-bar));
+            opacity: 1;
+            transform: translate3d(-50%, 0, 0)
+        }
+        .filters.stuck .panel {
+            clip-path: inset(0 0 calc(100% - var(--bar, 70px)) 0 round var(--r-bar));
+            opacity: 1;
+            transform: translate3d(-50%, 0, 0)
+        }
     }
 }
 
@@ -624,6 +762,8 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
    ===================================================================== */
 @media (max-width: 560px) {
     /* menu trên cùng */
+        .gal-btn.prev { left: 12px }
+    .gal-btn.next { right: 12px }
     .gnav ul { display: none }
     .burger { display: block }
     .nav-icons { gap: 16px }
@@ -826,6 +966,166 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
     .name { min-height: 60px }
 }
 
+/* ---------- Danh mục Website: thẻ kiểu Apple Mac ---------- */
+.is-web main { max-width: none; background: var(--bg2); padding: 24px 0 8px }
+
+/* tab Website: đã có 2 mảng màu trắng/xám nên bỏ đường kẻ ngăn cách */
+.is-web .filters { border-bottom-color: transparent }
+
+.grid.web {
+    --edge: max(22px, calc((100% - 1024px) / 2 + 22px));
+    display: flex;
+    gap: 20px;
+    border-left: 0;
+    padding: 0 var(--edge) 8px;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--edge);
+    scrollbar-width: none;
+    -webkit-overflow-scrolling: touch
+}
+
+.grid.web::-webkit-scrollbar { display: none }
+.grid.web { overscroll-behavior-x: contain }
+
+.wcard {
+    flex: 0 0 372px;
+    scroll-snap-align: start;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    animation: rise .7s var(--ease) both
+}
+
+.wimg {
+    width: 100%;
+    height: 252px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #fff;
+    border-radius: 20px;
+    padding: 0;
+    margin-bottom: 0;
+    overflow: hidden
+}
+
+.wimg .gal { --gal-size: 100%; width: 100%; height: 100%; margin: 0 }
+.wimg .gal-track { height: 100% }
+
+.wimg .gal img.pimg {
+    height: 100%;
+    aspect-ratio: auto;
+    object-fit: contain;
+    padding: 36px 24px
+}
+
+  .wimg .gal-dots { top: auto; bottom: 10px; margin: 0 }
+.wcard .gal-btn,
+.wcard .gal-dots { display: none !important }
+.wcard .gal-btn,
+.wcard .gal-dots { display: none !important }
+  
+
+.wcard .dots { gap: 8px; margin: 28px 0 0 }
+
+.wcard .dots i {
+    width: 12px;
+    height: 12px;
+    box-shadow: inset 0 0 0 1px rgba(0, 0, 0, .15)
+}
+
+.wname {
+    margin-top: 44px;
+    font-size: 28px;
+    line-height: 1.14;
+    font-weight: 600;
+    letter-spacing: -.02em
+}
+
+.wtag {
+    margin-top: 8px;
+    max-width: 340px;
+    font-size: 17px;
+    line-height: 1.3;
+    font-weight: 600
+}
+
+.wnote {
+    margin-top: 40px;
+    font-size: 14px;
+    line-height: 1.4;
+    color: var(--text)
+}
+
+.wbtns {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 24px;
+    margin-top: auto;            /* các nút luôn thẳng hàng ở đáy thẻ */
+    padding: 36px 0 40px
+}
+
+.btn-pill {
+    display: inline-flex;
+    align-items: center;
+    height: 44px;
+    padding: 0 22px;
+    border-radius: 980px;
+    background: #0071e3;
+    color: #fff;
+    font-size: 17px;
+    transition: background .25s ease, transform .35s var(--ease)
+}
+
+.btn-pill:active { transform: scale(.96) }
+/* nút ‹ › của băng chuyền Website */
+.wnav {
+    display: none;
+    justify-content: flex-end;
+    gap: 12px;
+    max-width: 1264px;
+    margin: 0 auto;
+    padding: 0 22px 40px
+}
+
+.is-web .wnav { display: flex }
+.is-web .pager { display: none }
+
+.wnav button {
+    width: 36px;
+    height: 36px;
+    display: grid;
+    place-items: center;
+    border: 0;
+    border-radius: 50%;
+    background: #e8e8ed;
+    color: #1d1d1f;
+    cursor: pointer;
+    transition: transform .35s var(--ease), opacity .25s ease
+}
+
+.wnav button:disabled { opacity: .4; cursor: default }
+.wnav button:active:not(:disabled) { transform: scale(.9); transition-duration: .12s }
+
+@media (hover: hover) {
+    .wcard:hover .gal-btn { opacity: 1; pointer-events: auto; transform: scale(1) }
+    .btn-pill:hover { background: #0077ed }
+    .btn-link:hover { text-decoration: underline }
+}
+
+@media (max-width: 900px) {
+    .wcard { flex-basis: 340px }
+}
+
+@media (max-width: 560px) {
+    .grid.web { --edge: 16px }
+    .wcard { flex-basis: 80vw }
+    .wname { font-size: 26px }
+    .wnav { padding: 0 16px 32px }
+}
 /* ---------- Người dùng tắt hiệu ứng ---------- */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
