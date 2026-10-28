@@ -133,6 +133,14 @@
     targets.forEach((t) => io.observe(t));
   }
 
+  // ---- khung iPhone Duo (iframe), truyền ảnh màn ngoài / màn trong qua đường dẫn ----
+  function duoHero(duo, title) {
+    const url = new URL(duo.src, document.baseURI);
+    if (duo.outer) url.searchParams.set("outer", new URL(duo.outer, document.baseURI).href);
+    if (duo.inner) url.searchParams.set("inner", new URL(duo.inner, document.baseURI).href);
+    return `<div class="hero hero-duo"><iframe src="${esc(url.href)}" title="${esc(title || "iPhone Duo")}" loading="lazy"></iframe></div>`;
+  }
+
   function render(p) {
     const d = p.detail || {};
     document.title = (d.title || p.name || "Chi tiết dự án") + " | Portfolio";
@@ -152,7 +160,7 @@
         ${d.lead ? `<p class="dlead">${esc(d.lead)}</p>` : ""}
         ${d.desc ? `<p class="ddesc">${esc(d.desc)}</p>` : ""}
         ${meta ? `<dl class="meta">${meta}</dl>` : ""}
-        ${d.hero ? `<div class="hero">${imgTag(d.hero, d.title)}</div>` : ""}
+        ${d.duo ? duoHero(d.duo, d.title) : d.hero ? `<div class="hero">${imgTag(d.hero, d.title)}</div>` : ""}
         ${(d.sections || []).map(section).join("")}
         ${more ? `<section class="more"><h2>More Projects</h2><div class="more-grid">${more}</div></section>` : ""}
       </div>`;

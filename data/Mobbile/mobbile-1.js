@@ -30,6 +30,11 @@
       { k: "Phối hợp", v: "Cá nhân / Dự án minh họa" }
     ],
     hero: "assets/mobbile/Mobbile1/0.png",
+    duo: {
+      src: "assets/duo/index.html",
+      outer: "assets/mobbile/Mobbile1/outer.jpg",
+      inner: "assets/mobbile/Mobbile1/inner.png"
+    },
 
     sections: [
       /* ---------- 01 ---------- */
