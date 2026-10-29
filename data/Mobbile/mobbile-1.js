@@ -52,8 +52,7 @@ window.PRODUCTS.push({
               { n: "03", t: "Khách mới chưa biết spa nên cần thấy uy tín ngay từ đầu" },
               { n: "04", t: "Cần dẫn khách đến hành động: xem địa chỉ, gọi hotline, gửi thông tin" }
             ]
-          },
-          { type: "image", src: "assets/mobbile/Mobbile1/1.png", alt: "Tổng quan bối cảnh" }
+          }
         ]
       },
 
@@ -64,7 +63,31 @@ window.PRODUCTS.push({
         text: "Quan sát luồng từ lúc khách vào trang đến lúc quyết định đặt lịch, có ba điểm khách thường dừng lại hoặc rời đi.",
         blocks: [
           { type: "callout", text: "Điểm nghẽn lớn nhất: khách chưa thấy ngay không gian, dịch vụ và địa chỉ của spa ở màn hình đầu tiên." },
-          { type: "image", src: "assets/mobbile/Mobbile1/2.png", alt: "Hành trình khách xem trang và đặt lịch spa" }
+          {
+            type: "graph",
+            dark: true,
+            tag: "User flow",
+            title: "Khách vào trang, rẽ nhánh theo mức độ tin tưởng",
+            cols: 5,
+            nodes: [
+              { id: "a", t: "Vào trang",            d: "Google · TikTok · Zalo",          c: 3, r: 1 },
+              { id: "b", t: "Xem màn hình đầu",     d: "Ảnh vòm · lời chào",              c: 3, r: 2 },
+              { id: "c", t: "Đủ tin tưởng chưa?",   d: "Không gian · dịch vụ · địa chỉ",  c: 3, r: 3 },
+              { id: "d", t: "Đã tin tưởng",         d: "Thấy ưu đãi, không gian rõ",      c: 1, r: 4 },
+              { id: "e", t: "Chưa rõ spa",          d: "Cần thêm bằng chứng",             c: 3, r: 4 },
+              { id: "f", t: "Cần biết đường đi",    d: "Tìm địa chỉ, liên hệ",            c: 5, r: 4 },
+              { id: "h", t: "Xem video + feedback", d: "Thấy khách thật",                 c: 2, r: 5 },
+              { id: "i", t: "Xem bản đồ",           d: "Địa chỉ · hotline",               c: 4, r: 5 },
+              { id: "g", t: "Gọi / đặt lịch",       d: "Hotline hoặc gửi form",           c: 3, r: 6, hl: true }
+            ],
+            edges: [
+              ["a","b"], ["b","c"],
+              ["c","d","side"], ["c","e"], ["c","f","side"],
+              ["d","g","vh"],
+              ["e","h"], ["e","i"], ["f","i"],
+              ["h","g"], ["i","g"]
+            ]
+          }
         ]
       },
 
