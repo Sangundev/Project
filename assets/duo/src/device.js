@@ -21,9 +21,11 @@ import {
 import { USDLoader } from 'three/addons/loaders/USDLoader.js';
 
 // ===== Screens (lock screen images) =====
-const INNER_WIDTH = 1600;
-const OUTER_WIDTH = 774;
-const HEIGHT = 1125;
+// Hệ số nhân độ phân giải texture màn hình (1 = gốc). Tăng để chữ nét hơn, đổi lại tốn VRAM.
+const RESOLUTION = 1.25;
+const INNER_WIDTH = Math.round(1600 * RESOLUTION);
+const OUTER_WIDTH = Math.round(774 * RESOLUTION);
+const HEIGHT = Math.round(1125 * RESOLUTION);
 const UI_ASSETS = './assets/ui/';
 
 const CLOCK_TIME_BOX = { width: 0.73, height: 0.54 };
@@ -118,30 +120,34 @@ function paintPanelLockScreen(lockScreen, panel, turn) {
   return canvas;
 }
 
-function paintFittedImage(image) {
+function paintFittedImage(image, turn = 'none') {
   const canvas = createCanvas(INNER_WIDTH, HEIGHT);
   const context = canvasContext(canvas);
   context.fillStyle = '#101418';
   context.fillRect(0, 0, canvas.width, canvas.height);
+  if (turn === 'clockwise') {
+    context.translate(canvas.width, 0);
+    context.rotate(Math.PI / 2);
+  } else if (turn === 'anticlockwise') {
+    context.translate(0, canvas.height);
+    context.rotate(-Math.PI / 2);
+  }
+  const frame =
+    turn === 'none'
+      ? { width: canvas.width, height: canvas.height }
+      : { width: canvas.height, height: canvas.width };
   const source = image instanceof HTMLCanvasElement ? { width: image.width, height: image.height } : image;
-  const scale = Math.min(canvas.width / source.width, canvas.height / source.height);
+  const scale = Math.min(frame.width / source.width, frame.height / source.height);
   const width = source.width * scale;
   const height = source.height * scale;
-  context.drawImage(image, (canvas.width - width) / 2, (canvas.height - height) / 2, width, height);
+  context.drawImage(image, (frame.width - width) / 2, (frame.height - height) / 2, width, height);
   return canvas;
 }
 
-async function paintCustomImage(file) {
-  const url = URL.createObjectURL(file);
-  try {
-    return paintFittedImage(await loadImage(url));
-  } finally {
-    URL.revokeObjectURL(url);
-  }
-}
 
-async function loadStaticImage(src) {
-  return paintFittedImage(await loadImage(src));
+
+async function loadStaticImage(src, turn = 'none') {
+  return paintFittedImage(await loadImage(src), turn);
 }
 
 async function loadPanelImage(src, panel) {
@@ -220,7 +226,7 @@ void main() {
   if (imgSize.x < imgSize.y && uv.x < 0.5) corners = 0.0;
   vec2 center = vec2(0.5) * aspect;
   float area = sdRoundedBox(uv * aspect - center, center, corners);
-  fragColor = vec4(texture(map, uv).rgb * smoothstep(0.0, 2.0 / maxBounds, -area), 1.0);
+  fragColor = vec4(textureLod(map, uv, 0.0).rgb * smoothstep(0.0, 2.0 / maxBounds, -area), 1.0);
 }
 `;
 
@@ -277,11 +283,11 @@ void main() {
 }
 `;
 
-function createTarget(width, height, anisotropy) {
+function createTarget(width, height, anisotropy, mipmaps = true) {
   const target = new WebGLRenderTarget(width, height, {
     depthBuffer: false,
-    generateMipmaps: true,
-    minFilter: LinearMipmapLinearFilter,
+    generateMipmaps: mipmaps,
+    minFilter: mipmaps ? LinearMipmapLinearFilter : LinearFilter,
     magFilter: LinearFilter,
   });
   target.texture.colorSpace = SRGBColorSpace;
@@ -334,7 +340,7 @@ class ScreenWipe {
     const build = (panel) => {
       const { x, y } = sizes[panel];
       return {
-        compose: createTarget(x, y, anisotropy),
+        compose: createTarget(x, y, anisotropy, false),
         frame: createTarget(x, y, anisotropy),
         first: createTarget(x, y, anisotropy),
         second: createTarget(x, y, anisotropy),
@@ -413,8 +419,8 @@ const INNER_UI_FRAME = new Vector4(-7.89935, 0.34562 - MODEL_DROP, 15.7987, 11.1
 const OUTER_UI_FRAME = new Vector4(0.23396, 0.27173 - MODEL_DROP, 7.73936, 11.2513).multiplyScalar(
   (UI_REFERENCE_EYE.z - 0.24948) / (UI_REFERENCE_EYE.z - 0.825538),
 );
-const INNER_PIXEL = new Vector2(1 / 1600, 1 / 1125);
-const OUTER_PIXEL = new Vector2(1 / 774, 1 / 1125);
+const INNER_PIXEL = new Vector2(1 / INNER_WIDTH, 1 / HEIGHT);
+const OUTER_PIXEL = new Vector2(1 / OUTER_WIDTH, 1 / HEIGHT);
 const CLOSED_ZOOM = 1.47;
 
 const LAYER_DEPTH = { sky: 0.47, mountain: 1, dune: 0.7 };
@@ -643,7 +649,7 @@ function createFoldable(model, lockScreen, anisotropy, environment) {
 
   function fits(kind) {
     return turn[kind] !== 'none' || focus === kind;
-  }
+  }   
 
   function dressFor(kind) {
     const fit = fits(kind);
@@ -652,7 +658,7 @@ function createFoldable(model, lockScreen, anisotropy, environment) {
       settled: focus === kind,
       dim: kind === 'inner' && focus === 'outer',
     };
-    if (customTexture) return { ...common, backdrop: customTexture, layered: false, clock: false };
+    if (customTexture && kind === 'inner') return { ...common, backdrop: customTexture, layered: false, clock: false };
     if (panelTextures[kind]) return { ...common, fit: true, backdrop: panelTextures[kind], layered: false, clock: false };
     return {
       ...common,
@@ -956,4 +962,4 @@ function createFoldable(model, lockScreen, anisotropy, environment) {
   };
 }
 
-export { loadLockScreen, loadPanelImage, loadStaticImage, paintCustomImage, loadModel, createFoldable };
+export { loadLockScreen, loadPanelImage, loadStaticImage, loadModel, createFoldable };

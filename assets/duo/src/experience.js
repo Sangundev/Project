@@ -13,7 +13,7 @@ import {
 } from 'three';
 import { OrbitControls } from 'three/addons/controls/OrbitControls.js';
 import { RoomEnvironment } from 'three/addons/environments/RoomEnvironment.js';
-import { createFoldable, loadModel, loadLockScreen, loadPanelImage, loadStaticImage, paintCustomImage } from './device.js';
+import { createFoldable, loadModel, loadLockScreen, loadPanelImage, loadStaticImage } from './device.js';
 import { HIGHLIGHTS } from './ui.js';
 
 // ===== Stage (renderer, camera, orbit) =====
@@ -25,13 +25,17 @@ const FRAMED_HEIGHT = 16.5;
 const FRAME_DAMPING = 9;
 const MAX_BOTTOM_CARVE = 0.65;
 
+const MIN_PIXEL_RATIO = 2;
+const MAX_PIXEL_RATIO = 2;
+
 function createStage(host, obstacle) {
   const renderer = new WebGLRenderer({
     antialias: true,
     alpha: true,
     powerPreference: 'high-performance',
   });
-  renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+  // Render tối thiểu 2x (supersampling) để chữ trên màn hình điện thoại không bị vỡ trên màn hình DPR 1.
+  renderer.setPixelRatio(Math.min(Math.max(window.devicePixelRatio, MIN_PIXEL_RATIO), MAX_PIXEL_RATIO));
   renderer.setClearColor(0xffffff, 0);
   renderer.toneMapping = ACESFilmicToneMapping;
   renderer.toneMappingExposure = 1.0;
@@ -214,11 +218,25 @@ const ARRIVAL_VIEW = { distance: 34, pitch: 1.53, yaw: 0.3 };
 // Share of the loading bar each phase fills; the model download dominates.
 const IMAGES_SHARE = 0.15;
 const MODEL_SHARE = 0.7;
-const STELE_URL = './assets/stele.webp';
-// Ảnh riêng cho màn ngoài / màn trong; có thể truyền qua ?outer=...&inner=... khi nhúng bằng iframe.
+// Ảnh riêng cho màn ngoài / màn trong / tab Portrait; có thể truyền qua ?outer=...&inner=...&portrait=... khi nhúng bằng iframe.
 const params = new URLSearchParams(location.search);
 const OUTER_IMAGE_URL = params.get('outer') || './assets/outer.jpg';
 const INNER_IMAGE_URL = params.get('inner') || './assets/inner.jpg';
+
+// Ưu tiên ?portrait=...; nếu trang chi tiết chưa truyền thì suy ra từ ?outer=... (cùng thư mục, tên portrait.png).
+function portraitUrl() {
+  const given = params.get('portrait');
+  if (given) return given;
+  const outer = params.get('outer');
+  if (outer) return outer.replace(/[^/]*$/, 'portrait.png');
+  return './assets/portrait.png';
+}
+
+// Ảnh tĩnh cho từng tab: khóa trùng với trường `image` của highlight trong ui.js.
+const SCREEN_IMAGES = {
+  stele: './assets/stele.webp',
+  portrait: portraitUrl(),
+};
 
 function easeInOut(progress) {
   return progress < 0.5 ? 4 * progress ** 3 : 1 - (-2 * progress + 2) ** 3 / 2;
@@ -237,7 +255,7 @@ function nextFrame() {
   return new Promise((resolve) => requestAnimationFrame(() => resolve()));
 }
 
-async function start({ host, rack, rail, notice, loader, uploader, bindSelect }) {
+async function start({ host, rack, rail, notice, loader, bindSelect }) {
   let imagesDone = 0;
   let modelDone = 0;
   const report = (message) =>
@@ -275,7 +293,7 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
     modelDone = 1;
     report('Preparing device');
     await nextFrame();
-    foldable = createFoldable(model, lockScreen, stage.renderer.capabilities.getMaxAnisotropy(), stage.scene.environment);
+    foldable = createFoldable(model, lockScreen, Math.min(stage.renderer.capabilities.getMaxAnisotropy(), 4), stage.scene.environment);
     stage.content.add(foldable.root);
     loader.setProgress(0.92, 'Preparing device');
     // Compile shaders up front (in parallel where the GPU driver allows) so the first frames don't stall.
@@ -296,10 +314,12 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
     (error) => console.error(error),
   );
 
-  let stelePromise = null;
-  function stele() {
-    stelePromise ??= loadStaticImage(STELE_URL);
-    return stelePromise;
+  // Hướng xoay ảnh cho từng tab, cùng chiều với `roll` của highlight trong ui.js.
+  const SCREEN_TURNS = { portrait: 'clockwise' };
+  const screenImagePromises = {};
+  function screenImage(key) {
+    screenImagePromises[key] ??= loadStaticImage(SCREEN_IMAGES[key], SCREEN_TURNS[key] ?? 'none');
+    return screenImagePromises[key];
   }
 
   let openness = HIGHLIGHTS[0].openness;
@@ -307,7 +327,6 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
   let settle = null;
   let showing = rail.current;
   const nudge = { yaw: 0, pitch: 0, shownYaw: 0, shownPitch: 0 };
-  let hasCustomUpload = false;
 
   function setOpenness(value) {
     openness = value;
@@ -320,16 +339,19 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
   }
 
   function showScreenImage(highlight) {
-    if (hasCustomUpload) return;
-    if (highlight.image !== 'stele') {
+    if (!SCREEN_IMAGES[highlight.image]) {
       foldable.clearImage();
       return;
     }
-    stele().then(
+    screenImage(highlight.image).then(
       (image) => {
-        if (!hasCustomUpload && rail.current === highlight) foldable.showImage(image);
+        if (rail.current === highlight) foldable.showImage(image);
       },
-      (error) => console.error(error),
+      (error) => {
+        console.error(error);
+        delete screenImagePromises[highlight.image];
+        notice.show(`Không tải được ảnh: ${SCREEN_IMAGES[highlight.image]} (${error?.message ?? error})`, NOTICE_SECONDS);
+      },
     );
   }
 
@@ -456,8 +478,12 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
 
   // Raycasting the full mesh is costly, so hover checks run at most once per frame.
   let hoverAt = null;
+  let lastHoverCheck = 0;
   function checkHover() {
     if (!hoverAt || press) return;
+    const now = performance.now();
+    if (now - lastHoverCheck < 100) return;
+    lastHoverCheck = now;
     canvas.classList.toggle('is-grabbable', stage.hitsContent(hoverAt.x, hoverAt.y));
     hoverAt = null;
   }
@@ -524,21 +550,7 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
     engage(from);
   });
 
-  uploader.onChange(async (file) => {
-    try {
-      const image = await paintCustomImage(file);
-      hasCustomUpload = true;
-      foldable.showImage(image);
-      uploader.setCustom(true);
-      rail.select(HIGHLIGHTS[1]);
-    } catch {
-      notice.show('Unable to read this image. Choose a PNG, JPG, or WebP file.', NOTICE_SECONDS);
-    }
-  });
-  uploader.onReset(() => {
-    hasCustomUpload = false;
-    showScreenImage(rail.current);
-  });
+
 
   const eye = new Vector3();
   function trackViewpoint() {
@@ -552,7 +564,6 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
   setOpenness(0);
   foldTarget = 0;
   rail.unlock();
-  uploader.setDisabled(false);
   settleOn(rail.current, { seconds: ARRIVAL_SECONDS });
 
   let previous = performance.now();
@@ -575,11 +586,20 @@ async function start({ host, rack, rail, notice, loader, uploader, bindSelect })
   // Draw the first frame before revealing the canvas so the fade-in never shows an empty stage.
   frame(previous);
   stage.renderer.setAnimationLoop(frame);
+  // Dừng vẽ khi viewer không nằm trong màn hình để trang chính cuộn mượt.
+  new IntersectionObserver(([entry]) => {
+    if (entry.isIntersecting) {
+      previous = performance.now();
+      stage.renderer.setAnimationLoop(frame);
+    } else {
+      stage.renderer.setAnimationLoop(null);
+    }
+  }).observe(host);
   await nextFrame();
   loader.done();
   foldable.warmUp();
 
-  const prefetch = () => void stele().catch(() => {});
+  const prefetch = () => Object.keys(SCREEN_IMAGES).forEach((key) => void screenImage(key).catch(() => {}));
   if ('requestIdleCallback' in window) window.requestIdleCallback(prefetch, { timeout: 3000 });
   else setTimeout(prefetch, 1500);
 }

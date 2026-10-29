@@ -1,8 +1,8 @@
-import { createRail, requireElement, Loader, Notice, Uploader } from './ui.js';
+import { createRail, requireElement, Loader, Notice } from './ui.js';
 
 const notice = new Notice('#notice');
 const loader = new Loader('#loader');
-const uploader = new Uploader('#upload', '#upload-file', '#reset-upload');
+
 
 // The menu is plain DOM, so it renders straight away. Picks made while the model loads are remembered
 // through `rail.current` and the device arrives on whichever highlight is chosen.
@@ -33,7 +33,6 @@ async function boot() {
     rail,
     notice,
     loader,
-    uploader,
     bindSelect(handler) {
       onSelect = handler;
     },

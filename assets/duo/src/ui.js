@@ -106,11 +106,12 @@ const HIGHLIGHTS = [
     roll: 'clockwise',
     lift: 0,
     tapTarget: 'landscape',
+    image: 'portrait',
   },
   {
     id: 'closed',
     label: 'Closed',
-    body: "Compact and comfortable to hold. With essential controls moved to the side, they're easy to reach. And you get more vertical space for apps.",
+    body: "Compact and comfortable to hold. With essential controls moved to the side, théy're easy to reach. And you get more vertical space for apps.",
     openness: 0,
     pose: [0, 0, 0],
     view: { distance: 47, pitch: QUARTER, yaw: -0.12 },
@@ -126,6 +127,7 @@ const HIGHLIGHTS = [
     roll: 'clockwise',
     lift: -0.4,
     tapTarget: 'closed',
+    image: 'portrait',
   },
   {
     id: 'standing',
