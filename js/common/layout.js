@@ -3,21 +3,10 @@
   const HEADER = `
   <nav class="gnav">
     <div class="gnav-in">
-      <a href="index.html" class="logo" aria-label="Trang chủ"><svg width="14" height="18" viewBox="0 0 14 18">
-          <circle cx="7" cy="10" r="6.5" fill="currentColor" />
-          <rect x="6.2" y="0" width="1.6" height="4" rx=".8" fill="currentColor" />
-        </svg></a>
+      <a href="index.html" class="logo" aria-label="Trang chủ"><img src="assets/system/Logo.svg" ></a>
       <ul id="navlinks"></ul>
       <span class="nav-icons">
         <button type="button" class="langtoggle" aria-label="Language"><b>VI</b><i>/</i><b>EN</b></button>
-        <svg width="15" height="44" viewBox="0 0 15 44">
-          <circle cx="6" cy="21" r="4.5" fill="none" stroke="currentColor" stroke-width="1.2" />
-          <path d="M9.5 24.5 13 28" stroke="currentColor" stroke-width="1.2" />
-        </svg>
-        <svg width="14" height="44" viewBox="0 0 14 44">
-          <path d="M2 17h10l-1 12H3z" fill="none" stroke="currentColor" stroke-width="1.2" />
-          <path d="M5 17v-2a2 2 0 0 1 4 0v2" fill="none" stroke="currentColor" stroke-width="1.2" />
-        </svg>
         <svg class="burger" width="18" height="44" viewBox="0 0 18 44">
           <path d="M2 20h14M2 25h14" fill="none" stroke="currentColor" stroke-width="1.2" />
         </svg>

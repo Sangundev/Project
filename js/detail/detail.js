@@ -35,8 +35,36 @@
       `<div class="chips">${(b.items || [])
         .map((c) => `<span>${c.k ? `<small>${esc(c.k)}</small>` : ""}${esc(c.v ?? c)}</span>`)
         .join("")}</div>`,
-    image: (b) => `<figure class="fig">${imgTag(b.src, b.alt)}</figure>`,
+    image: (b) => `<figure class="fig${b.trim ? " is-trim" : ""}">${imgTag(b.src, b.alt)}</figure>`,
     images: (b) => `<div class="figs">${(b.items || []).map((s) => imgTag(s)).join("")}</div>`,
+    devices: (b) => {
+      const items = b.items || [];
+      const on = b.active || (items[0] && items[0].key);
+      const ICON = {
+        desktop: '<rect x="3" y="4" width="18" height="12" rx="2"/><path d="M8 20h8M12 16v4"/>',
+        tablet: '<rect x="5" y="3" width="14" height="18" rx="2"/><path d="M11 18h2"/>',
+        mobile: '<rect x="8" y="2.5" width="8" height="19" rx="2"/><path d="M11 18.5h2"/>'
+      };
+      const cls = (i) => (i.key === on ? " is-on" : "");
+      return `<div class="devices">
+        <div class="devices__stage">${items
+          .map(
+            (i) =>
+              `<img class="devices__img${cls(i)}" data-key="${esc(i.key)}" src="${esc(i.src)}" alt="${esc(i.alt || i.label)}" loading="lazy">`
+          )
+          .join("")}</div>
+        <div class="devices__tabs">${items
+          .map(
+            (i) =>
+              `<button type="button" class="devices__btn${cls(i)}" data-key="${esc(i.key)}">
+                <span class="devices__ico">
+                  <svg class="ic-plus" viewBox="0 0 24 24"><path d="M12 6v12M6 12h12"/></svg>
+                  <svg class="ic-dev" viewBox="0 0 24 24">${ICON[i.key] || ICON.desktop}</svg>
+                </span>${esc(i.label)}</button>`
+          )
+          .join("")}</div>
+      </div>`;
+    },
     module: (b) =>
       `<div class="module">
         <small>${esc(b.tag)}</small>
@@ -44,6 +72,7 @@
         <p>${esc(b.text)}</p>
         ${b.chips ? `<div class="chips">${b.chips.map((c) => `<span>${c.k ? `<small>${esc(c.k)}</small>` : ""}${esc(c.v ?? c)}</span>`).join("")}</div>` : ""}
         ${b.img ? `<figure class="fig">${imgTag(b.img)}</figure>` : ""}
+        ${(b.imgs || []).map((s) => `<figure class="fig">${imgTag(s)}</figure>`).join("")}
       </div>`,
     metrics: (b) =>
       `<div class="metrics">${(b.items || [])
@@ -173,6 +202,7 @@
     const url = new URL(duo.src, document.baseURI);
     if (duo.outer) url.searchParams.set("outer", new URL(duo.outer, document.baseURI).href);
     if (duo.inner) url.searchParams.set("inner", new URL(duo.inner, document.baseURI).href);
+    if (duo.figma) url.searchParams.set("figma", duo.figma);
     return `<div class="hero hero-duo"><iframe src="${esc(url.href)}" title="${esc(title || "iPhone Duo")}" loading="lazy"></iframe></div>`;
   }
 
@@ -258,6 +288,30 @@
     if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => drawGraphs());
   }
 
+  // ---- khối devices: bấm nút nào hiện thiết bị đó (gắn một lần, dùng cho mọi khối devices) ----
+  function devicesFx() {
+    root.addEventListener("click", (e) => {
+      const btn = e.target.closest(".devices__btn");
+      if (!btn) return;
+      const box = btn.closest(".devices");
+      if (!box) return;
+      const k = btn.dataset.key;
+      box.querySelectorAll(".devices__img").forEach((i) =>
+        i.classList.toggle("is-on", i.dataset.key === k)
+      );
+      box.querySelectorAll(".devices__btn").forEach((b) => b.classList.toggle("is-on", b === btn));
+
+      // hàng nút đang cuộn ngang thì đưa nút vừa bấm vào giữa khung, không để bị cắt mép
+      const row = btn.parentElement;
+      if (row.scrollWidth > row.clientWidth) {
+        row.scrollTo({
+          left: btn.offsetLeft - (row.clientWidth - btn.offsetWidth) / 2,
+          behavior: "smooth"
+        });
+      }
+    });
+  }
+  devicesFx();
   // ---- vẽ ngay khi file của dự án này đã nạp xong ----
   document.addEventListener("products:ready", () => {
     const p = findProduct();
@@ -287,7 +341,7 @@
   });  // ---- vẽ dây nối + hiệu ứng chạy cho khối graph ----
   const NS = "http://www.w3.org/2000/svg";
   const PULSE = 28;      // độ dài đoạn sáng (px)
-  const SPEED = 0.3;     // tốc độ chạy (px mỗi ms), tăng số này thì chạy nhanh hơn
+  const SPEED = 0.16;    // tốc độ chạy (px mỗi ms), tăng số này thì chạy nhanh hơn
 
   // nối các điểm gấp khúc, bo tròn góc
   function roundedPath(pts, r) {
@@ -343,6 +397,12 @@
     const reduce = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
     (scope || root).querySelectorAll(".gp-in").forEach((box) => {
+      // sơ đồ rộng hơn khung: cuộn về giữa một lần lúc mở
+      const sc = box.closest(".gp-scroll");
+      if (sc && !box._gpCentered) {
+        sc.scrollLeft = (sc.scrollWidth - sc.clientWidth) / 2;
+        box._gpCentered = true;
+      }
       (box._gpAnims || []).forEach((a) => a.cancel());
       box._gpAnims = [];
       box.querySelectorAll(".gp-label").forEach((n) => n.remove());
@@ -432,8 +492,8 @@
       const total = Math.max(...Object.values(maxA)) + hold + fade + pause;
 
       const cs = getComputedStyle(box);
-      const glow = cs.getPropertyValue("--gp-glow").trim() || "#6b7a3a";
-      const glow2 = cs.getPropertyValue("--gp-glow2").trim() || "rgba(107,122,58,.35)";
+      const glow = cs.getPropertyValue("--gp-glow").trim() || "#566230";
+      const glow2 = cs.getPropertyValue("--gp-glow2").trim() || "rgba(107,122,58,.18)";
       const anims = [];
 
       // đoạn sáng chạy dọc từng dây
@@ -461,7 +521,7 @@
         const c = (maxA[id] + hold + fade) / total;
         const bs = getComputedStyle(n).boxShadow;
         const base = !bs || bs === "none" ? "0 0 0 0 transparent" : bs;
-        const on = `0 0 0 1px ${glow}, 0 0 18px ${glow2}`;
+        const on = `0 0 0 1px ${glow}, 0 0 12px ${glow2}`;
         anims.push(
           n.animate(
             [
@@ -484,3 +544,4 @@
     });
   }
 })();
+

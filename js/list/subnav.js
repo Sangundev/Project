@@ -5,10 +5,11 @@
 // Ảnh category 76x76: điền `img` (đường dẫn ảnh) hoặc để trống thì dùng ô màu `color`.
 
 const SUBNAV_ITEMS = [
-  { key: "all",     name: "Tất Cả", color: "#8d8268", img: "assets/system/1.png", current: true },
-  { key: "Mobbile", name: "Mobile",  color: "#6a2a35", img: "assets/system/2.png"},
-  { key: "Other",   name: "Other",   color: "#cdbfe6", img: "assets/system/3.png"},
-  { key: "Website", name: "Website", color: "#3d5fd6", img:  "assets/system/4.png"},
+  { key: "all",      name: "Tất Cả",   color: "#8d8268", img: "assets/system/1.png", current: true },
+  { key: "Mobbile",  name: "Mini app", color: "#6a2a35", img: "assets/system/2.png"},
+  { key: "Website",  name: "Website",  color: "#3d5fd6", img: "assets/system/4.png"},
+  { key: "Branding", name: "Branding", color: "#6b7a3a" },
+  { key: "Other",    name: "Other",    color: "#cdbfe6", img: "assets/system/3.png"},
 ];
 
 function renderSubnav() {

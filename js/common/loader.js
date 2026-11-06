@@ -1,6 +1,6 @@
 (() => {
   const DATA_DIR = "data";
-  const COUNT = { Mobbile: 7, Other: 0, Website: 6 };
+  const COUNT = { Mobbile: 7, Branding: 0, Other: 0, Website: 6 };
 
   const cfg = document.currentScript ? document.currentScript.dataset : {};
   const list = (s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : []);

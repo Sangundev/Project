@@ -98,13 +98,18 @@ function art(p) {
   const base = /strap|wallet|glass/.test(p.kind) ? "" : "case";
   return `<div class="art ${base} ${p.kind}" style="--c:${p.color}">${p.kind.includes("mag") ? "<span></span>" : ""}</div>`;
 }
-function card(p, wide) {
+ function card(p, wide) {
+  const d = p.detail || {};
+  const parts = d.eyebrow ? d.eyebrow.split(" · ") : [];
+  const year = (d.meta || []).find((m) => m.k === "Thời gian")?.v || "";
+  const label = p.label || parts[1] || "";
+  const field = p.field || parts[2] || "";
+  const info = [year, field].filter(Boolean).join(" · ");
   return `<article class="card${wide ? " wide" : ""}" tabindex="0">
     <div class="img">${art(p)}</div>
-    <div class="dots">${p.dots.map((c) => `<i style="background:${c}"></i>`).join("")}</div>
-    <div class="badge">${p.isNew ? "MỚI" : ""}</div>
+    <div class="badge">${label}</div>
     <a class="name notranslate" href="#">${p.name}</a>
-    <div class="price">${vnd(p.price)}</div>
+    ${info ? `<div class="price">${info}</div>` : ""}
   </article>`;
 }
 
@@ -211,16 +216,15 @@ function render(scroll) {
   const slice = list.slice(start, start + PAGE_SIZE);
   const hero = state.sort === "featured" && state.page === 1 && !filtered;
 
-  const web = state.folder === "Website";
-  grid.classList.toggle("web", web);
-  document.body.classList.toggle("is-web", web);
+  grid.classList.remove("web");
+  document.body.classList.remove("is-web");
   grid.innerHTML = slice.length
-    ? slice.map((p, i) => (web ? webCard(p) : card(p, hero && i === 0))).join("")
+    ? slice.map((p, i) => card(p, hero && i === 0)).join("")
     : EMPTY;
-  pageInfo.textContent = `${state.page} of ${pages}`;
+  pageInfo.textContent = `${state.page} / ${pages}`;
   prevBtn.disabled = state.page <= 1;
   nextBtn.disabled = state.page >= pages;
-  if (web) { grid.scrollLeft = 0; wUpdate(); } // băng chuyền về thẻ đầu + cập nhật nút ‹ ›
+ 
   if (scroll) window.scrollTo({ top: 0, behavior: "smooth" });
 }
 

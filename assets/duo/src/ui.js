@@ -26,6 +26,7 @@ class Loader {
   }
   fail(message) {
     this.element.classList.add('is-failed');
+    this.element.setAttribute('aria-busy', 'false');
     this.label.textContent = message;
   }
 }
@@ -35,10 +36,11 @@ class Notice {
     this.element = requireElement(selector);
   }
   show(message, seconds) {
+    window.clearTimeout(this.timer);
     this.element.textContent = message;
     this.element.hidden = false;
     if (seconds) {
-      window.setTimeout(() => {
+      this.timer = window.setTimeout(() => {
         this.element.hidden = true;
       }, seconds * 1000);
     }
@@ -74,6 +76,9 @@ class Uploader {
 }
 
 // ===== Highlights =====
+// Dán link Figma vào đây (để '' nếu chưa có thì tab Figma sẽ ẩn)
+const FIGMA_URL = new URLSearchParams(window.location.search).get('figma') || '';
+
 const QUARTER = Math.PI / 2;
 const TENT_OPENNESS = 0.4;
 const TENT_TILT = QUARTER - ((1 - TENT_OPENNESS) * Math.PI) / 2;
@@ -81,8 +86,8 @@ const TENT_TILT = QUARTER - ((1 - TENT_OPENNESS) * Math.PI) / 2;
 const HIGHLIGHTS = [
   {
     id: 'foldable',
-    label: 'Foldable design',
-    body: 'Offers exceptional viewing experiences in a design that fits in your pocket.',
+    label: 'Gập mở',
+    body: 'Một thiết kế, nhiều màn hình. Kéo thanh bên dưới để mở máy và xem website thích ứng từ màn hình ngoài sang màn hình trong.',
     openness: 0.3333,
     pose: [0, 0, 0],
     view: { distance: 43, pitch: QUARTER, yaw: 0 },
@@ -90,16 +95,16 @@ const HIGHLIGHTS = [
   },
   {
     id: 'landscape',
-    label: 'Landscape',
-    body: 'A spacious display for incredibly immersive entertainment. You can even use two apps side by side with Split View multitasking.',
+    label: 'Ngang',
+    body: 'Màn hình mở rộng cho thấy ba ảnh vòm xếp hàng ngang như trên desktop, đủ chỗ cho dịch vụ, ưu đãi và bản đồ trong một màn hình.',
     openness: 1,
     pose: [0, 0, 0],
     view: { distance: 48, pitch: 1.5, yaw: 0 },
   },
   {
     id: 'portrait',
-    label: 'Portrait',
-    body: 'Type comfortably on a wider keyboard. Enjoy more room to browse and scroll. Pin a video to the top and watch it while using another app.',
+    label: 'Dọc',
+    body: 'Cầm dọc như một cuốn sổ: bố cục thu gọn như trên tablet, nội dung cuộn dọc dễ đọc, nút gọi và biểu mẫu nằm trong tầm ngón cái.',
     openness: 1,
     pose: [0, 0, QUARTER],
     view: { distance: 46, pitch: 1.52, yaw: 0 },
@@ -110,8 +115,8 @@ const HIGHLIGHTS = [
   },
   {
     id: 'closed',
-    label: 'Closed',
-    body: "Compact and comfortable to hold. With essential controls moved to the side, théy're easy to reach. And you get more vertical space for apps.",
+    label: 'Gấp',
+    body: 'Khi gập lại, màn hình ngoài hiển thị bản mobile: một cột, tiêu đề lớn, nút gọi ở vị trí dễ chạm. Đây là bản được thiết kế trước.',
     openness: 0,
     pose: [0, 0, 0],
     view: { distance: 47, pitch: QUARTER, yaw: -0.12 },
@@ -119,8 +124,8 @@ const HIGHLIGHTS = [
   },
   {
     id: 'seated',
-    label: 'Seated',
-    body: 'Set iPhone Duo down and watch a show or follow a workout at the perfect viewing angle — with easy access to the controls on the bottom.',
+    label: 'Đặt bàn',
+    body: 'Đặt máy xuống bàn để xem video TikTok và feedback của khách thật ở góc nhìn thoải mái, giúp khách mới tin tưởng trước khi đặt lịch.',
     openness: 0.5,
     pose: [0, 0, QUARTER],
     view: { distance: 44, pitch: 1.34, yaw: 0 },
@@ -131,8 +136,8 @@ const HIGHLIGHTS = [
   },
   {
     id: 'standing',
-    label: 'Standing',
-    body: 'Display a bedside clock, photos, widgets and more with StandBy. And watch movies and shows at an adjustable angle on the outer display.',
+    label: 'Dựng đứng',
+    body: 'Dựng máy hình chữ A để trưng bày trang chủ như một tấm menu giới thiệu: ảnh vòm họa tiết lá và bảng chào mừng màu olive vẫn nhìn rõ từ xa.',
     openness: TENT_OPENNESS,
     pose: [TENT_TILT, 0, -QUARTER],
     view: { distance: 50, pitch: 1.3, yaw: -0.3 },
@@ -143,8 +148,8 @@ const HIGHLIGHTS = [
   },
   {
     id: 'durability',
-    label: 'Durability',
-    body: 'Grade 5 titanium frame and hinge cover. Scratch-resistant coating on the inner display. Ceramic Shield, front and back. IP68 water and dust resistant.',
+    label: 'Thương hiệu',
+    body: 'Nâu ấm, xanh olive và kem be được dùng nhất quán trên mọi màn hình, từ ảnh vòm họa tiết lá đến nút “Gửi thông tin ngay”.',
     openness: 0.45,
     pose: [-0.1, 2.3, 0],
     view: { distance: 27.5, pitch: 1.52, yaw: 0 },
@@ -153,17 +158,20 @@ const HIGHLIGHTS = [
     shift: -2.2,
     tapTarget: 'closed',
   },
-  // {
-  //   id: 'stele',
-  //   label: 'Stele',
-  //   body: "If you're still manually inspecting elements and taking UI screenshots, you're wasting time. Capture any web UI straight to React code and Figma layers, instantly.",
-  //   openness: 1,
-  //   pose: [0, 0, 0],
-  //   view: { distance: 48, pitch: 1.5, yaw: 0 },
-  //   image: 'stele',
-  //   link: { url: 'https://stele.so', label: 'Try Stele' },
-  //   sponsored: true,
-  // },
+  ...(FIGMA_URL
+    ? [
+        {
+          id: 'figma',
+          label: 'Figma',
+          body: '',
+          openness: 1,
+          pose: [0, 0, 0],
+          view: { distance: 48, pitch: 1.5, yaw: 0 },
+          link: { url: FIGMA_URL, label: 'Xem bản vẽ bên Figma' },
+          linkOnly: true,
+        },
+      ]
+    : []),
 ];
 
 // ===== Rail =====
@@ -193,7 +201,7 @@ function foldControl() {
   slider.max = String(SLIDER_STEPS);
   slider.step = '1';
   slider.disabled = true;
-  slider.setAttribute('aria-label', 'Fold amount');
+  slider.setAttribute('aria-label', 'Độ gập');
   return slider;
 }
 
@@ -221,15 +229,17 @@ function buildItem(highlight) {
     tag.textContent = 'check out my work';
     detail.append(tag);
   }
-  const copy = document.createElement('p');
-  copy.className = 'info-copy';
-  const lead = document.createElement('strong');
-  lead.textContent = `${highlight.label}.`;
-  copy.append(lead, ` ${highlight.body}`);
-  detail.append(copy);
+  if (!highlight.linkOnly) {
+    const copy = document.createElement('p');
+    copy.className = 'info-copy';
+    const lead = document.createElement('strong');
+    lead.textContent = `${highlight.label}.`;
+    copy.append(lead, ` ${highlight.body}`);
+    detail.append(copy);
+  }
   if (highlight.link) {
     const link = document.createElement('a');
-    link.className = 'highlight-link';
+    link.className = highlight.linkOnly ? 'highlight-link highlight-link--button' : 'highlight-link';
     link.href = highlight.link.url;
     link.target = '_blank';
     link.rel = 'noopener noreferrer';
@@ -259,7 +269,7 @@ function createRail(list, sheet, previous, upcoming, onSelect) {
       control.className = 'fold-control';
       const hint = document.createElement('span');
       hint.className = 'fold-label';
-      hint.textContent = 'Drag below to open and close';
+      hint.textContent = 'Kéo bên dưới để mở và gập';
       control.append(hint, slider);
       detail.append(control);
     }

@@ -68,7 +68,8 @@ a, button, select, label, .card { touch-action: manipulation }
 
 .gnav ul a { opacity: .8 }
 .nav-icons { display: flex; gap: 18px; opacity: .8 }
-.logo { display: flex; opacity: .8 }
+.logo { display: flex; align-items: center; flex: none; opacity: 1 }
+.logo img { display: block; height: 22px !important; width: auto !important; max-height: 22px }
 
 /* ---------- Thanh khuyến mãi ---------- */
 .promo {
@@ -658,6 +659,7 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
    DESKTOP  (>= 561px)
    ===================================================================== */
 @media (min-width: 561px) {
+    .phead { display: none }
     .pills { order: 1 }
     .sort { order: 3 }
 
@@ -757,9 +759,11 @@ footer .crumbs { padding: 12px 0; border-bottom: 1px solid var(--line) }
    MOBILE  (<= 560px)
    ===================================================================== */
 @media (max-width: 560px) {
-    /* menu trên cùng */
-        .gal-btn.prev { left: 12px }
+    /* nút ‹ › của thư viện ảnh */
+    .gal-btn.prev { left: 12px }
     .gal-btn.next { right: 12px }
+
+    /* menu trên cùng */
     .gnav ul { display: none }
     .burger { display: block }
     .nav-icons { gap: 16px }

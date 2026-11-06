@@ -1,13 +1,14 @@
-// Mobbile 1
-(window.PRODUCTS ||= []).push({
-  id: "mobbile-1",
-  name: "iPhone Duo Folio có Chân Đế - Nâu Xám",
+// website 1
+window.PRODUCTS = window.PRODUCTS || [];
+window.PRODUCTS.push({
+  id: "website-1",
+  file: "website-1",
+  name: "CoEm de T Beauty & More - Website Spa",
   imgs: [
-    "assets/mobbile/1.png",
-    "assets/mobbile/2.png",
-    "assets/mobbile/3.png"
+    "assets/website/website1/main.png",
+    "assets/website/website1/main1.png"
   ],
-  price: 3799000,
+  price: 0,
   color: "#8d8268",
   dots: [
     "#8d8268",
@@ -15,173 +16,281 @@
   ],
   isNew: 1,
   kind: "case",
-  brand: "Apple",
+  brand: "CoEm de T",
   fit: "iPhone Duo",
+    label: "Web design",
+  field: "Spa & Beauty",
 
   detail: {
-    eyebrow: "CASE 01 · PRODUCT DESIGN · ACCESSORIES",
-    title: "iPhone Duo Folio: thiết kế trải nghiệm ốp lưng có chân đế",
-    lead: "Từ nhu cầu dùng điện thoại hằng ngày đến một sản phẩm bảo vệ gọn nhẹ, dễ dùng và có chân đế tiện lợi.",
-    desc: "Dự án thử nghiệm giao diện trưng bày phụ kiện: từ trang danh sách, bộ lọc, đến trang chi tiết dùng chung cho mọi sản phẩm. Nội dung dưới đây là dữ liệu mẫu để kiểm tra bố cục.",
+    eyebrow: "CASE 01 · WEB DESIGN · SPA & BEAUTY",
+    title: "CoEm de T Beauty & More: thiết kế website spa mang cảm giác thư giãn",
+    lead: "Từ không gian spa ấm áp tông nâu và xanh olive đến một trang web giúp khách cảm nhận được sự thư giãn ngay từ màn hình đầu tiên.",
+    desc: "Thiết kế landing page cho CoEm de T tại Quận 3, TP.HCM: giới thiệu không gian, ưu đãi khai trương, video TikTok, feedback khách hàng, blog chia sẻ và biểu mẫu liên hệ.",
     meta: [
-      { k: "Vai trò", v: "UI/UX Designer & Front-end" },
-      { k: "Thời gian", v: "2026" },
-      { k: "Phạm vi", v: "Product Listing / Filter / Detail Page" },
-      { k: "Phối hợp", v: "Cá nhân / Dự án minh họa" }
+      { k: "Vai trò", v: "UI/UX Designer" },
+      { k: "Thời gian", v: "2025" },
+      { k: "Phạm vi", v: "Landing Page / Brand Look / Responsive" },
+      { k: "Phối hợp", v: "Nasani / Khách hàng spa" }
     ],
-    hero: "assets/mobbile/Mobbile1/0.png",
+    hero: "assets/website/website1/img.png",
     duo: {
       src: "assets/duo/index.html",
-      outer: "assets/mobbile/Mobbile1/outer.jpg",
-      inner: "assets/mobbile/Mobbile1/inner.png"
+      outer: "assets/website/website1/outer.png",
+      inner: "assets/website/website1/inner.png",
+      portrait: "assets/website/website1/portrait.png",
+      figma: "https://www.figma.com/design/LINK-FIGMA-THAT-CUA-BAN"
     },
-
     sections: [
       /* ---------- 01 ---------- */
       {
         label: "Bối cảnh & Thách thức",
-        title: "Sản phẩm đẹp nhưng người dùng khó so sánh và khó chọn",
-        text: "Danh mục phụ kiện có nhiều màu, nhiều dòng máy tương thích. Người dùng cần lọc nhanh, nhìn rõ sản phẩm và hiểu ngay sự khác biệt giữa các lựa chọn.",
+        title: "Spa đẹp ngoài đời nhưng website phải truyền được cảm giác đó",
+        text: "CoEm de T là spa mới mở, có nhiều dịch vụ như massage, gội đầu thư giãn, nail và mi. Website cần giới thiệu không gian, tạo sự tin tưởng và khiến khách muốn đến trải nghiệm.",
         blocks: [
           {
             type: "cards",
             items: [
-              { n: "01", t: "Nhiều biến thể màu sắc, khó hình dung khi chỉ có một ảnh" },
-              { n: "02", t: "Dòng máy tương thích dễ chọn nhầm" },
-              { n: "03", t: "Bộ lọc trên mobile chiếm nhiều diện tích màn hình" },
-              { n: "04", t: "Trang chi tiết mỗi sản phẩm lại làm một kiểu, khó bảo trì" }
+              { n: "01", t: "Cảm giác thư giãn của không gian thật khó truyền qua màn hình" },
+              { n: "02", t: "Bảng giá nail, mi, gội đầu dày chữ, dễ làm trang rối" },
+              { n: "03", t: "Khách mới chưa biết spa nên cần thấy uy tín ngay từ đầu" },
+              { n: "04", t: "Cần dẫn khách đến hành động: xem địa chỉ, gọi hotline, gửi thông tin" }
             ]
-          },
-          { type: "image", src: "assets/mobbile/Mobbile1/1.png", alt: "Tổng quan bối cảnh" }
+          }
         ]
       },
 
       /* ---------- 02 ---------- */
       {
-        label: "Vấn đề phát hiện",
-        title: "Từ hành trình chọn mua, xác định các điểm gây khó khăn",
-        text: "Quan sát luồng từ lúc vào danh mục đến lúc quyết định, có ba điểm người dùng thường dừng lại hoặc rời đi.",
+        label: "Phân tích & xác định vấn đề",
+        title: "Từ hành trình của khách, xác định các điểm dễ rời đi",
+        text: "Quan sát luồng từ lúc khách vào trang đến lúc quyết định đặt lịch, có ba điểm khách thường dừng lại hoặc rời đi.",
         blocks: [
-          { type: "callout", text: "Điểm nghẽn lớn nhất: người dùng không thấy ngay sản phẩm nào hợp với máy của mình." },
-          { type: "image", src: "assets/mobbile/Mobbile1/2.png", alt: "Hành trình chọn mua" }
+          { type: "callout", text: "Điểm nghẽn lớn nhất: spa mới mở nên khách chưa biết, và cần thấy ngay không gian, giá ưu đãi và địa chỉ ở màn hình đầu tiên." },
+          {
+            type: "graph",
+            dark: true,
+
+            cols: 5,
+            nodes: [
+              { id: "a", t: "Vào trang",            d: "Google · TikTok · Zalo",          c: 3, r: 1 },
+              { id: "b", t: "Xem màn hình đầu",     d: "3 ảnh vòm · bảng chào mừng",      c: 3, r: 2 },
+              { id: "c", t: "Đủ tin tưởng chưa?",   d: "Không gian · giá · địa chỉ",      c: 3, r: 3 },
+              { id: "d", t: "Đã tin tưởng",         d: "Thấy ưu đãi 70k, không gian rõ",  c: 1, r: 4 },
+              { id: "e", t: "Chưa rõ spa",          d: "Cần thấy người thật dùng",        c: 3, r: 4 },
+              { id: "f", t: "Cần biết đường đi",    d: "Tìm địa chỉ ở Quận 3",            c: 5, r: 4 },
+              { id: "h", t: "Xem video + feedback", d: "Video TikTok · khách thật",       c: 2, r: 5 },
+              { id: "i", t: "Xem bản đồ",           d: "Địa chỉ · hotline",               c: 4, r: 5 },
+              { id: "g", t: "Gọi / đặt lịch",       d: "Hotline hoặc form đăng ký",       c: 3, r: 6, hl: true }
+            ],
+            edges: [
+              ["a","b"], ["b","c"],
+              ["c","d","side"], ["c","e"], ["c","f","side"],
+              ["d","g","vh"],
+              ["e","h"], ["e","i"], ["f","i"],
+              ["h","g"], ["i","g"]
+            ]
+          }
         ]
       },
 
-      /* ---------- 03 ---------- */
+          /* ---------- 03 ---------- */
       {
-        label: "Giả thuyết & Kiểm chứng",
-        title: "Từ quan sát, đưa ra giả thuyết và thử nghiệm trên giao diện thật",
-        text: "Mỗi giả thuyết được dựng thành giao diện thử nghiệm riêng, kiểm tra xem người dùng có chọn nhanh và đúng hơn hay không.",
+        label: "Kiến trúc thông tin",
+        title: "Menu sáu mục, nội dung xếp theo nhịp cảm xúc, bằng chứng, hành động",
+        text: "Trang một cột cuộn dọc, menu đầu trang gồm Trang Chủ, Giới Thiệu, Dịch Vụ, Blog Chia Sẻ, Thư Viện và Liên Hệ. Mỗi mục gom một nhóm nội dung riêng, xếp theo nhịp khách đọc: thấy không gian, xem ưu đãi, tin bằng người thật, rồi mới đến liên hệ.",
         blocks: [
           {
-            type: "module",
-            tag: "Giả thuyết 1",
-            title: "Thư viện ảnh trượt giúp hình dung sản phẩm rõ hơn",
-            text: "Ảnh trượt mượt, chấm báo trang cho biết còn bao nhiêu góc nhìn mà không cần mở trang khác.",
-            img: "assets/mobbile/Mobbile1/3.1.png"
-          },
-          {
-            type: "module",
-            tag: "Giả thuyết 2",
-            title: "Chấm màu hiển thị ngay các lựa chọn có sẵn",
-            text: "Người dùng thấy toàn bộ phiên bản màu ngay trên thẻ sản phẩm, không cần vào trang chi tiết để biết.",
-            img: "assets/mobbile/Mobbile1/3.2.png"
-          },
-          {
-            type: "module",
-            tag: "Giả thuyết 3",
-            title: "Nhãn dòng máy tương thích đặt cạnh tên sản phẩm",
-            text: "Thông tin tương thích được đưa lên ngay vị trí dễ thấy để giảm nhầm lẫn khi chọn.",
-            img: "assets/mobbile/Mobbile1/3.3.png"
+            type: "graph",
+            dark: true,
+            cols: 5,
+            nodes: [
+              { id: "a",  t: "Trang chủ",        d: "Một trang, cuộn dọc",    c: 3, r: 1 },
+              { id: "b",  t: "Giới Thiệu",       d: "Cảm xúc đầu tiên",       c: 1, r: 2 },
+              { id: "c",  t: "Dịch Vụ",          d: "Bảng giá & ưu đãi",      c: 2, r: 2 },
+              { id: "d",  t: "Blog Chia Sẻ",     d: "Câu chuyện làm đẹp",     c: 3, r: 2 },
+              { id: "e",  t: "Thư Viện",         d: "Bằng chứng thật",        c: 4, r: 2 },
+              { id: "f",  t: "Liên Hệ",          d: "Hành động cuối",         c: 5, r: 2, hl: true },
+              { id: "b2", t: "Hero · 3 ảnh vòm",             d: "Bảng chào mừng · 4 điểm mạnh", c: 1, r: 3 },
+              { id: "c2", t: "Cuốn sổ dịch vụ",              d: "Nail · Mi · Gội đầu",   c: 2, r: 3 },
+              { id: "d2", t: "2 bài viết",                   d: "Nail & Gội đầu spa",    c: 3, r: 3 },
+              { id: "e2", t: "Gallery · video · feedback",   d: "Ảnh lệch nhịp · video lướt ngang", c: 4, r: 3 },
+              { id: "f2", t: "Form · bản đồ · hotline",      d: "Gom một chỗ",           c: 5, r: 3 }
+            ],
+            edges: [
+              ["a","b","side"], ["a","c"], ["a","d"], ["a","e"], ["a","f","side"],
+              ["b","b2"], ["c","c2"], ["d","d2"], ["e","e2"], ["f","f2"]
+            ]
           }
+        ]
+      },
+
+      /* ---------- 03b ---------- */
+      {
+        label: "Cấu trúc trang chủ",
+        title: "Cảm xúc trước, bằng chứng ở giữa, hành động ở cuối",
+        text: "Các khối được xếp theo nhịp khách đọc: thấy không gian, xem giá ưu đãi, tin bằng người thật, đọc thêm ở blog, rồi mới đến liên hệ.",
+        blocks: [
+          {
+            type: "graph",
+            dark: true,
+            cols: 3,
+            nodes: [
+              { id: "a", t: "Hero & chào mừng",      d: "Cảm xúc · 3 ảnh vòm, địa chỉ, hotline", c: 2, r: 1 },
+              { id: "b", t: "Giới thiệu",            d: "Cảm xúc · tagline viết tay, 4 điểm mạnh", c: 2, r: 2 },
+              { id: "c", t: "Dịch vụ & ưu đãi",      d: "Thông tin · sổ dịch vụ, bảng giá", c: 2, r: 3 },
+              { id: "d", t: "Không gian",            d: "Cảm xúc · gallery lệch nhịp",     c: 2, r: 4 },
+              { id: "e", t: "Video TikTok",          d: "Bằng chứng · video lướt ngang, lượt xem",  c: 1, r: 5 },
+              { id: "f", t: "Feedback khách hàng",   d: "Bằng chứng · ảnh chân dung",      c: 3, r: 5 },
+              { id: "g", t: "Blog chia sẻ",          d: "Thông tin · 2 bài viết",          c: 2, r: 6 },
+              { id: "h", t: "Liên hệ + bản đồ",      d: "Hành động · form, hotline, bản đồ", c: 2, r: 7, hl: true }
+            ],
+            edges: [
+              ["a","b"], ["b","c"], ["c","d"],
+              ["d","e"], ["d","f"],
+              ["e","g"], ["f","g"],
+              ["g","h"]
+            ]
+          },
+          // { type: "image", src: "assets/website/website1/lamdep_lethithaotam_1156625_t8.png", alt: "Toàn bộ trang chủ" }
+        ]
+      },
+
+      /* ---------- 03c ---------- */
+      {
+        label: "Luồng người dùng",
+        title: "Rút ngắn đường từ lúc vào trang đến lúc gọi hoặc gửi form",
+        text: "So sánh luồng trước khi thiết kế lại (khách tự tìm không gian và địa chỉ) với luồng mới, nơi bảng chào mừng màu olive đưa địa chỉ và hotline lên ngay màn hình đầu.",
+        blocks: [
+          {
+            type: "graph",
+            dark: true,
+            cols: 5,
+            nodes: [
+              { id: "a1", t: "Vào trang",            d: "Luồng cũ",                        c: 1, r: 1 },
+              { id: "a2", t: "Tự tìm không gian",    d: "Chưa rõ ở màn hình đầu",          c: 1, r: 2 },
+              { id: "a3", t: "Cuộn tìm dịch vụ",     d: "Nhiều khối, dễ rối",              c: 1, r: 3 },
+              { id: "a4", t: "Tìm địa chỉ",          d: "Thêm một bước",                   c: 1, r: 4 },
+              { id: "b1", t: "Vào trang",            d: "Luồng mới",                       c: 5, r: 1 },
+              { id: "b2", t: "Màn hình đầu",         d: "Ảnh vòm · địa chỉ · hotline",     c: 5, r: 2 },
+              { id: "b3", t: "Cuộn xem bằng chứng",  d: "Video · feedback nếu cần",        c: 5, r: 3 },
+              { id: "g",  t: "Gọi / gửi form",       d: "Hotline hoặc form ngắn",          c: 3, r: 5, hl: true }
+            ],
+            edges: [
+              ["a1","a2"], ["a2","a3"], ["a3","a4"], ["a4","g","vh"],
+              ["b1","b2"], ["b2","b3"], ["b3","g","vh"]
+            ]
+          }
+        ]
+      },
+
+      /* ---------- 03d ---------- */
+      {
+        label: "Wireframe",
+        title: "Dựng khung sườn cả trang trước khi thêm màu và ảnh",
+        text: "Wireframe xếp sẵn tám khối theo nhịp đã chọn: hero, giới thiệu, ưu đãi, không gian, video, feedback, blog và liên hệ. Chốt chỗ cho từng khối rồi mới thêm màu, chữ và hình ảnh.",
+        blocks: [
+          { type: "image", src: "assets/website/website1/wireframe.png", alt: "Wireframe giao diện mobile", trim: true }
         ]
       },
 
       /* ---------- 04 ---------- */
       {
-        label: "Tối ưu luồng chọn mua",
-        title: "Từ danh sách đến quyết định, làm gọn từng bước",
-        text: "Sau kiểm chứng, giữ lại các giải pháp hiệu quả và tối ưu thêm ở ba điểm: lọc, so sánh và xem chi tiết.",
+        label: "Thiết kế & tối ưu giao diện",
+        title: "Từ lần đầu ghé trang đến lúc để lại thông tin, làm gọn từng bước",
+        text: "Sau kiểm chứng, giữ lại các giải pháp hiệu quả và tối ưu thêm ba điểm: không gian, video và đánh giá, liên hệ.",
         blocks: [
           {
             type: "module",
             tag: "Bước 1",
-            title: "Bộ lọc kính mờ trên desktop",
-            text: "Các pill mở panel kính mờ, chọn xong thấy kết quả đổi ngay.",
+            title: "Thư viện không gian bố cục lệch nhịp",
+            text: "Ảnh phòng spa, ảnh dịch vụ và câu tagline viết tay “Chăm chút từng chi tiết, nâng niu từng khoảnh khắc” đặt xen kẽ trên nền nâu, để mắt khách di chuyển tự nhiên, không bị đơn điệu.",
             chips: [
-              { k: "Trước", v: "Danh sách dài, không lọc" },
-              { k: "Sau", v: "Pill + panel" },
-              { k: "Kết quả", v: "Tìm nhanh hơn" }
+              { k: "Trước", v: "Ảnh xếp lưới đều, ít cảm xúc" },
+              { k: "Sau", v: "Bố cục lệch nhịp + tagline" },
+              { k: "Kết quả", v: "Dễ cảm nhận không gian" }
             ],
-            img: "assets/mobbile/Mobbile1/4.1.png"
+            img: "assets/website/website1/img.png"
           },
           {
             type: "module",
             tag: "Bước 2",
-            title: "Bảng lọc trượt từ dưới lên trên mobile",
-            text: "Một nút Bộ lọc mở bảng toàn màn hình dạng accordion, có số mục đã chọn.",
+            title: "Video TikTok và feedback tạo niềm tin",
+            text: "Các video TikTok dọc kèm lượt xem lướt ngang qua bên trái, cùng khung feedback có ảnh chân dung tròn và dải ảnh nhỏ để chuyển giữa các khách, giúp khách mới thấy spa có người thật sử dụng.",
             chips: [
-              { k: "Trước", v: "Bộ lọc chiếm màn hình" },
-              { k: "Sau", v: "Bảng trượt accordion" },
-              { k: "Kết quả", v: "Gọn, dễ thao tác" }
+              { k: "Trước", v: "Chỉ có chữ giới thiệu" },
+              { k: "Sau", v: "Video + feedback" },
+              { k: "Kết quả", v: "Tăng độ tin cậy" }
             ],
-            img: "assets/mobbile/Mobbile1/4.2.png"
+            imgs: [
+              "assets/website/website1/Video.png",
+              "assets/website/website1/feedback.png"
+            ]
           },
           {
             type: "module",
             tag: "Bước 3",
-            title: "Trang chi tiết dùng chung một khung",
-            text: "Mọi sản phẩm cùng một bố cục, nội dung lấy từ dữ liệu riêng của từng dự án.",
+            title: "Biểu mẫu liên hệ ngắn cạnh bản đồ",
+            text: "Chỉ hỏi họ tên, số điện thoại, email và nội dung, kết thúc bằng một nút olive “Gửi thông tin ngay”. Bên cạnh là địa chỉ, hotline, mạng xã hội và bản đồ.",
             chips: [
-              { k: "Trước", v: "Mỗi trang một kiểu" },
-              { k: "Sau", v: "Một khung dùng chung" },
-              { k: "Kết quả", v: "Dễ bảo trì" }
+              { k: "Trước", v: "Thông tin liên hệ rải rác" },
+              { k: "Sau", v: "Form + bản đồ một chỗ" },
+              { k: "Kết quả", v: "Gửi thông tin dễ hơn" }
             ],
-            img: "assets/mobbile/Mobbile1/4.3.png"
+            img: "assets/website/website1/register.png"
           }
         ]
       },
 
       /* ---------- 05 ---------- */
       {
-        label: "Thị trường & đa thiết bị",
-        title: "Cùng một trải nghiệm, nhưng phải khớp từng kích thước màn hình",
-        text: "Giao diện được kiểm tra trên desktop, tablet và mobile để đảm bảo bố cục không vỡ.",
+        label: "Khách hàng & đa thiết bị",
+        title: "Khách chủ yếu xem bằng điện thoại, nên mobile phải đẹp trước",
+        text: "Khách spa thường tìm kiếm và xem trang bằng điện thoại, nên giao diện được kiểm tra trên mobile, tablet và desktop để bố cục không vỡ.",
         blocks: [
-          { type: "callout", text: "Một thiết kế, ba cách hiển thị: lưới 4 cột, 2 cột và 1 cột tùy theo chiều rộng màn hình." },
-          { type: "image", src: "assets/mobbile/Mobbile1/5.png", alt: "Hiển thị đa thiết bị" }
+          { type: "callout", text: "Một thiết kế, ba cách hiển thị: ba ảnh vòm xếp hàng ngang trên desktop, thu gọn dần thành một cột trên mobile." },
+          {
+            type: "devices",
+            active: "desktop",
+            items: [
+              { key: "desktop", label: "Desktop", title: "Desktop.", desc: "Ba ảnh vòm xếp hàng ngang, đủ chỗ cho dịch vụ, ưu đãi và bản đồ trong một màn hình.", src: "assets/website/website1/lapptop.png", alt: "Giao diện trên laptop" },
+              { key: "tablet",  label: "Tablet",  title: "Tablet.",  desc: "Bố cục thu gọn dần, vẫn giữ nhịp: cảm xúc trước, bằng chứng ở giữa, hành động ở cuối.", src: "assets/website/website1/tabblet.png", alt: "Giao diện trên tablet" },
+              { key: "mobile",  label: "Mobile",  title: "Mobile.",  desc: "Một cột, nút gọi và biểu mẫu đặt ở vị trí dễ chạm. Đây là bản được thiết kế trước.", src: "assets/website/website1/Phone.png", alt: "Giao diện trên điện thoại" }
+            ]
+          }
         ]
       },
 
       /* ---------- 06 ---------- */
       {
         label: "Phương pháp & Kết quả",
-        title: "Một quy trình lặp lại được cho mọi dự án mới",
-        text: "Từ dự án này, rút ra quy trình thiết kế dựa trên quan sát và kiểm chứng, áp dụng cho các sản phẩm tiếp theo.",
+        title: "Một quy trình thiết kế rõ ràng cho website thương hiệu dịch vụ",
+        text: "Từ dự án này, rút ra quy trình đi từ cảm xúc thương hiệu đến hành động của khách, áp dụng cho các website spa và làm đẹp tiếp theo.",
         blocks: [
           {
             type: "flow",
-            items: ["Hiểu người dùng", "Phân tích dữ liệu", "Đề xuất giải pháp", "Thử nghiệm", "Tối ưu liên tục"]
+            items: ["Hiểu thương hiệu", "Chọn tông màu & hình ảnh", "Dựng bố cục", "Kiểm tra mobile", "Tối ưu liên tục"]
           },
           {
             type: "metrics",
             items: [
-              { k: "Số trang chi tiết cần viết", v: "13 → 1", d: "Mobbile + Website dùng chung một khung" },
-              { k: "Thời gian thêm dự án mới", v: "≈ 5 phút", d: "Chỉ cần tạo file dữ liệu và thêm ảnh" }
+              { k: "Khối nội dung trên trang chủ", v: "8", d: "Từ hero, ưu đãi, video, feedback đến blog và liên hệ" },
+              { k: "Màu chủ đạo", v: "3", d: "Nâu ấm, xanh olive và kem be, dùng nhất quán toàn trang" }
             ]
           },
           {
             type: "chips",
             items: [
-              { v: "Một khung HTML dùng chung" },
-              { v: "Dữ liệu tách riêng từng dự án" },
-              { v: "Thêm dự án không cần viết lại giao diện" }
+              { v: "Nâu ấm, xanh olive và kem be" },
+              { v: "Ảnh vòm và họa tiết lá tạo bản sắc" },
+              { v: "Chữ viết tay cho tagline, chữ serif cho tiêu đề" },
+              { v: "Dẫn khách đến địa chỉ, hotline và form liên hệ" }
             ]
           },
-          { type: "image", src: "assets/mobbile/Mobbile1/6.png", alt: "Kết quả" }
+          { type: "image", src: "assets/website/website1/inner.png", alt: "Kết quả" }
         ]
       }
     ],
+    
 
     contact: {
       email: "ban@email.com",
