@@ -20,34 +20,39 @@
     </p>
   </div>`;
 
+  // Danh sách lĩnh vực thiết kế: thêm/bớt ở đây, footer tự dựng lại.
+  // group: 1 = cột lớn, 2 = cột vừa, 3 = cột 
+  // slug phải trùng slug trong SUBNAV_ITEMS (js/list/subnav.js)
+  const FIELDS = [
+    { name: "Tất Cả", slug: "all", img: "assets/system/All.png" },
+    { name: "Mini app", slug: "mini-app", img: "assets/system/Mobile.png" },
+    { name: "Website", slug: "website", img: "assets/system/Laptop.png" },
+    { name: "Branding", slug: "branding" }, // chưa có ảnh, thêm img: "..." sau
+    { name: "Other", slug: "other", img: "assets/system/Other.png" },
+  ];
+
+  const esc = (s) => s.replace(/&/g, "&amp;").replace(/</g, "&lt;");
+
+  const fieldLink = (f) =>
+    `<a class="big" href="index.html${f.slug === "all" ? "" : "#" + f.slug}">
+      ${f.img ? `<img class="field-img" src="${f.img}" alt="" loading="lazy">` : ""}
+      <span>${esc(f.name)}</span>
+    </a>`;
+
   const FOOTER = `
   <section class="shop">
-    <h2>Phụ kiện</h2>
+    <h2>Lĩnh vực</h2>
     <div class="shop-cols">
       <div>
-        <h4>Mua Sắm Theo Sản Phẩm</h4>
-        <a class="big" href="#">Tất Cả Phụ Kiện</a><a class="big" href="#">iPhone</a><a class="big" href="#">iPad</a>
-        <a class="big" href="#">Mac</a><a class="big" href="#">Apple Watch</a><a class="big" href="#">AirPods</a>
-        <a class="big" href="#">AirTag</a><a class="big" href="#">Beats</a>
-      </div>
-      <div>
-        <h4>Mua Sắm Theo Danh Mục iPhone</h4>
-        <a class="mid" href="#">MagSafe</a><a class="mid" href="#">Sạc &amp; Bộ Tiếp Hợp Nguồn</a>
-        <a class="mid" href="#">Sáng Tạo Nội Dung</a><a class="mid" href="#">Tai Nghe &amp; Loa</a>
-        <a class="mid" href="#">Ốp Lưng &amp; Vỏ Bảo Vệ</a><a class="mid" href="#">Sức khỏe &amp; Hoạt động tập luyện</a>
-        <a class="mid" href="#">Dây Đeo Chéo &amp; Dây Đeo Tay</a>
-      </div>
-      <div>
-        <h4>Khám Phá Nhiều Phụ Kiện Hơn</h4>
-        <a class="small" href="#">Sản Phẩm Mới</a><a class="small" href="#">Màu Sắc Theo Mùa</a>
-        <a class="small" href="#">Công Cụ Thiết Yếu Của Sinh Viên</a>
+        <h4>Lĩnh Vực Thiết Kế</h4>
+        ${FIELDS.map(fieldLink).join("")}
       </div>
     </div>
   </section>
 
   <footer>
-    <p class="note">Phụ kiện thứ ba được giới thiệu chỉ mang tính chất minh họa. Giá và tình trạng hàng có thể thay đổi.</p>
-    <p class="crumbs"><a href="#">Phụ Kiện</a> › <a href="#">iPhone</a> › Ốp Lưng &amp; Vỏ Bảo Vệ</p>
+    <p class="note">Hình ảnh dự án chỉ mang tính chất minh họa. Nội dung có thể thay đổi.</p>
+    <p class="crumbs"><a href="index.html">Dự án</a> › Lĩnh vực</p>
     <div class="fcols" id="fcols"></div>
     <p class="legal">Bản quyền © 2026. Dự án minh họa giao diện, không liên kết với Apple.</p>
   </footer>`;

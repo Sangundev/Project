@@ -222,6 +222,8 @@ const MODEL_SHARE = 0.7;
 const params = new URLSearchParams(location.search);
 const OUTER_IMAGE_URL = params.get('outer') || './assets/outer.jpg';
 const INNER_IMAGE_URL = params.get('inner') || './assets/inner.jpg';
+// Ảnh màn ngoài riêng cho từng mục (khóa trùng với `image` trong ui.js): ?standing=...&durability=...
+const OUTER_BY_IMAGE = { standing: params.get('standing'), durability: params.get('durability') };
 
 // Ưu tiên ?portrait=...; nếu trang chi tiết chưa truyền thì suy ra từ ?outer=... (cùng thư mục, tên portrait.png).
 function portraitUrl() {
@@ -236,6 +238,7 @@ function portraitUrl() {
 const SCREEN_IMAGES = {
   stele: './assets/stele.webp',
   portrait: portraitUrl(),
+  seated: params.get('seated') || portraitUrl(),
 };
 
 function easeInOut(progress) {
@@ -303,22 +306,32 @@ async function start({ host, rack, rail, notice, loader, bindSelect }) {
     loader.fail('The model could not be loaded.');
     notice.show('The device model could not be loaded. Refresh the page to try again.');
     return;
-  }
+  } 
 
   loadPanelImage(OUTER_IMAGE_URL, 'outer').then(
     (image) => foldable.setPanelImage('outer', image),
     (error) => console.error(error),
   );
-  loadPanelImage(INNER_IMAGE_URL, 'inner').then(
+  loadPanelImage(INNER_IMAGE_URL, 'inner', true).then(
     (image) => foldable.setPanelImage('inner', image),
     (error) => console.error(error),
   );
 
   // Hướng xoay ảnh cho từng tab, cùng chiều với `roll` của highlight trong ui.js.
-  const SCREEN_TURNS = { portrait: 'clockwise' };
+  const SCREEN_TURNS = { portrait: 'clockwise', seated: 'clockwise' };
+  // Mức phóng to ảnh cho từng tab (1 = vừa khung, 1.5 = phóng to 1.5 lần).
+  const SCREEN_ZOOMS = { portrait: 1, seated: 1 };
+  // Tab nào căn mép trên để hiện từ đầu trang.
+  const SCREEN_TOP = { portrait: true, seated: true };
   const screenImagePromises = {};
   function screenImage(key) {
-    screenImagePromises[key] ??= loadStaticImage(SCREEN_IMAGES[key], SCREEN_TURNS[key] ?? 'none');
+    const paint = (src) =>
+      loadStaticImage(src, SCREEN_TURNS[key] ?? 'none', SCREEN_ZOOMS[key] ?? 1, SCREEN_TOP[key] ?? false);
+    screenImagePromises[key] ??= paint(SCREEN_IMAGES[key]).catch((error) => {
+      if (key !== 'portrait' && key !== 'seated') throw error;
+      console.warn('Không có portrait.png, dùng tạm ảnh inner.', error);
+      return paint(INNER_IMAGE_URL);
+    });
     return screenImagePromises[key];
   }
 
@@ -338,7 +351,51 @@ async function start({ host, rack, rail, notice, loader, bindSelect }) {
     return !settle && (openness <= SETTLED_MARGIN || openness >= 1 - SETTLED_MARGIN);
   }
 
+  // Chiều xoay ảnh gốc của màn ngoài cho từng mục: 'clockwise' | 'anticlockwise'
+  const OUTER_TURNS = { standing: 'anticlockwise' };
+  // Mục nào ẩn cột icon (giờ, wifi, thanh điều hướng...) trên màn ngoài
+  const OUTER_NO_UI = { standing: true };
+
+  async function turnedUrl(src, direction) {
+    const image = new Image();
+    image.src = src;
+    await image.decode();
+    const canvas = document.createElement('canvas');
+    canvas.width = image.naturalHeight;
+    canvas.height = image.naturalWidth;
+    const context = canvas.getContext('2d');
+    if (direction === 'clockwise') {
+      context.translate(canvas.width, 0);
+      context.rotate(Math.PI / 2);
+    } else {
+      context.translate(0, canvas.height);
+      context.rotate(-Math.PI / 2);
+    }
+    context.drawImage(image, 0, 0);
+    return canvas.toDataURL('image/png');
+  }
+
+  const outerCache = {};
+  let outerShown = `${OUTER_IMAGE_URL}||`;
+  function useOuter(url, highlight) {
+    const direction = OUTER_TURNS[highlight.image];
+    const key = `${url}|${direction ?? ''}|${OUTER_NO_UI[highlight.image] ? 'bare' : ''}`;
+    if (key === outerShown) return;
+    outerShown = key;
+    const noUi = !!OUTER_NO_UI[highlight.image];
+    outerCache[key] ??= direction
+      ? turnedUrl(url, direction).then((src) => loadPanelImage(src, 'outer', noUi))
+      : loadPanelImage(url, 'outer', noUi);
+    outerCache[key].then(
+      (image) => {
+        if (rail.current === highlight) foldable.setPanelImage('outer', image);
+      },
+      (error) => console.error(error),
+    );
+  }
+
   function showScreenImage(highlight) {
+    useOuter(OUTER_BY_IMAGE[highlight.image] || OUTER_IMAGE_URL, highlight);
     if (!SCREEN_IMAGES[highlight.image]) {
       foldable.clearImage();
       return;

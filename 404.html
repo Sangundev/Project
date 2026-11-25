@@ -1,0 +1,7 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<script>
+  // gặp /home/xxx (không có file thật) -> nhớ link rồi quay về index.html
+  sessionStorage.setItem("redirect", location.pathname + location.search);
+  location.replace(location.pathname.replace(/\/home(\/.*)?$/, "/index.html"));
+</script>s

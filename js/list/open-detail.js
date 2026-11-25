@@ -14,5 +14,11 @@ document.addEventListener("click", (e) => {
   const p = (window.PRODUCTS || []).find((x) => String(x.name).trim() === name);
   if (!p) return;
 
+  // project có detail.popup = true -> mở popup iPhone Duo, không chuyển trang
+  if (p.detail && p.detail.popup && typeof window.openDuoPopup === "function") {
+    window.openDuoPopup(p);
+    return;
+  }
+
   location.href = "detail.html?p=" + encodeURIComponent(p.file || p.id || p.name);
 });

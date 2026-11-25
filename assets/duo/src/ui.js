@@ -79,6 +79,15 @@ class Uploader {
 // Dán link Figma vào đây (để '' nếu chưa có thì tab Figma sẽ ẩn)
 const FIGMA_URL = new URLSearchParams(window.location.search).get('figma') || '';
 
+// Chữ riêng cho từng mục, lấy từ trường `duo.texts` trong data của dự án (khóa là id của mục).
+const TEXTS = (() => {
+  try {
+    return JSON.parse(new URLSearchParams(window.location.search).get('texts') || '{}');
+  } catch {
+    return {};
+  }
+})();
+
 const QUARTER = Math.PI / 2;
 const TENT_OPENNESS = 0.4;
 const TENT_TILT = QUARTER - ((1 - TENT_OPENNESS) * Math.PI) / 2;
@@ -108,9 +117,9 @@ const HIGHLIGHTS = [
     openness: 1,
     pose: [0, 0, QUARTER],
     view: { distance: 46, pitch: 1.52, yaw: 0 },
-    roll: 'clockwise',
-    lift: 0,
-    tapTarget: 'landscape',
+    roll: 'anticlockwise',
+    lift: -0.4,
+    tapTarget: 'closed',
     image: 'portrait',
   },
   {
@@ -129,10 +138,10 @@ const HIGHLIGHTS = [
     openness: 0.5,
     pose: [0, 0, QUARTER],
     view: { distance: 44, pitch: 1.34, yaw: 0 },
-    roll: 'clockwise',
+    roll: 'anticlockwise',
     lift: -0.4,
     tapTarget: 'closed',
-    image: 'portrait',
+    image: 'seated',
   },
   {
     id: 'standing',
@@ -141,10 +150,10 @@ const HIGHLIGHTS = [
     openness: TENT_OPENNESS,
     pose: [TENT_TILT, 0, -QUARTER],
     view: { distance: 50, pitch: 1.3, yaw: -0.3 },
-    roll: 'anticlockwise',
     screen: 'outer',
     lift: 2,
     tapTarget: 'closed',
+    image: 'standing',
   },
   {
     id: 'durability',
@@ -157,6 +166,7 @@ const HIGHLIGHTS = [
     lift: -2.2,
     shift: -2.2,
     tapTarget: 'closed',
+    image: 'durability',
   },
   ...(FIGMA_URL
     ? [
@@ -167,12 +177,20 @@ const HIGHLIGHTS = [
           openness: 1,
           pose: [0, 0, 0],
           view: { distance: 48, pitch: 1.5, yaw: 0 },
-          link: { url: FIGMA_URL, label: 'Xem bản vẽ bên Figma' },
+          link: {
+            url: FIGMA_URL,
+            label: 'View Prototype',
+            note: 'Xem toàn bộ dự án qua bản vẽ chạy Prototype trên Figma. Mở trong tab mới.',
+          },
           linkOnly: true,
         },
       ]
     : []),
 ];
+
+HIGHLIGHTS.forEach((highlight) => {
+  if (TEXTS[highlight.id]) highlight.body = TEXTS[highlight.id];
+});
 
 // ===== Rail =====
 
@@ -238,6 +256,12 @@ function buildItem(highlight) {
     detail.append(copy);
   }
   if (highlight.link) {
+    if (highlight.link.note) {
+      const note = document.createElement('p');
+      note.className = 'highlight-note';
+      note.textContent = highlight.link.note;
+      detail.append(note);
+    }
     const link = document.createElement('a');
     link.className = highlight.linkOnly ? 'highlight-link highlight-link--button' : 'highlight-link';
     link.href = highlight.link.url;

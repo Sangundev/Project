@@ -85,12 +85,13 @@ async function loadLockScreen() {
   return { backdrop, sky, mountain, innerClock: splitClock(innerClock), outerClock: splitClock(outerClock) };
 }
 
-function drawCover(context, image, width, height, bias = 0) {
+function drawCover(context, image, width, height, bias = 0, top = false) {
   const source = image instanceof HTMLCanvasElement ? { width: image.width, height: image.height } : image;
   const scale = Math.max(width / source.width, height / source.height);
   const drawn = { width: source.width * scale, height: source.height * scale };
   const left = Math.min(0, Math.max(width - drawn.width, (width - drawn.width) / 2 + bias * width));
-  context.drawImage(image, left, (height - drawn.height) / 2, drawn.width, drawn.height);
+  const y = top ? 0 : (height - drawn.height) / 2; // top = true: căn mép trên, hiện phần đầu ảnh
+  context.drawImage(image, left, y, drawn.width, drawn.height);
 }
 
 function paintPanelLockScreen(lockScreen, panel, turn) {
@@ -120,7 +121,7 @@ function paintPanelLockScreen(lockScreen, panel, turn) {
   return canvas;
 }
 
-function paintFittedImage(image, turn = 'none') {
+function paintFittedImage(image, turn = 'none', zoom = 1, top = false) {
   const canvas = createCanvas(INNER_WIDTH, HEIGHT);
   const context = canvasContext(canvas);
   context.fillStyle = '#101418';
@@ -137,23 +138,451 @@ function paintFittedImage(image, turn = 'none') {
       ? { width: canvas.width, height: canvas.height }
       : { width: canvas.height, height: canvas.width };
   const source = image instanceof HTMLCanvasElement ? { width: image.width, height: image.height } : image;
-  const scale = Math.min(frame.width / source.width, frame.height / source.height);
+  // top = true: phủ kín khung (cover), ảnh rộng bằng màn hình; false: vừa khung (contain).
+  const fitScale = top
+    ? Math.max(frame.width / source.width, frame.height / source.height)
+    : Math.min(frame.width / source.width, frame.height / source.height);
+  const scale = fitScale * zoom;
   const width = source.width * scale;
   const height = source.height * scale;
-  context.drawImage(image, (frame.width - width) / 2, (frame.height - height) / 2, width, height);
+  // top = true: căn mép trên của ảnh (hiện từ đầu trang), phần thừa bên dưới bị cắt.
+  const y = top ? 0 : (frame.height - height) / 2;
+  context.drawImage(image, (frame.width - width) / 2, y, width, height);
   return canvas;
 }
 
 
 
-async function loadStaticImage(src, turn = 'none') {
-  return paintFittedImage(await loadImage(src), turn);
+async function loadStaticImage(src, turn = 'none', zoom = 1, top = false) {
+  return paintFittedImage(await loadImage(src), turn, zoom, top);
 }
 
-async function loadPanelImage(src, panel) {
+// ===== Glass UI (cột icon kính mờ cho màn ngoài + màn trong) =====
+const GLASS_BUTTON = OUTER_WIDTH * 0.048; // nửa bề rộng một nút (màn trong)
+const PT = RESOLUTION / 1.12; // 1 pt Figma = PT px trên canvas (shader phóng ảnh 1,12 lần)
+const SHADER_MARGIN = (1 - 1 / 1.12) / 2; // phần ảnh bị cắt mỗi bên do shader (tỉ lệ)
+const OUTER_BUTTON = HEIGHT * 0.038; // nửa bề rộng một nút (màn ngoài), khớp bản vẽ Figma
+const GLASS_BLUR = 'blur(9px) saturate(1.4) brightness(1.12)';
+const GLASS_PAD = 24; // vùng đệm quanh nút khi làm mờ để mép không bị lộ
+const BAR_W = 84 * PT; // bề rộng dải trắng chứa icon (84pt theo Figma)
+const BAR_GAP = 16 * PT; // khoảng cách giữa ảnh và dải trắng
+const BAR_RADIUS = 28 * PT; // bo góc phía dải của ảnh
+
+// Chọn icon trắng (nền tối) hay đen (nền sáng) theo độ sáng của dải ảnh bên phải.
+function inkIsLight(ctx, w, h, mode, fromX) {
+  if (mode === 'light') return true;
+  if (mode === 'dark') return false;
+  try {
+    const sx = Math.max(0, Math.round(fromX));
+    const data = ctx.getImageData(sx, Math.round(h * 0.1), Math.max(1, w - sx), Math.round(h * 0.85)).data;
+    let sum = 0;
+    for (let i = 0; i < data.length; i += 4) sum += 0.2126 * data[i] + 0.7152 * data[i + 1] + 0.0722 * data[i + 2];
+    return sum / (data.length / 4) / 255 < 0.55; // nền tối -> icon trắng
+  } catch {
+    return false;
+  }
+}
+
+// Một nút kính nhẹ như máy thật: nền mờ ăn theo màu hình nền, phủ màu rất nhạt, viền mảnh.
+// tone 'clear' = kính trong (thanh điều hướng, chia sẻ, tìm kiếm); 'dark' = kính tối (nút quay lại); 'black' = kính đen.
+function drawGlass(ctx, snapshot, x, y, w, h, r, light, tone = 'clear') {
+  const edge = Math.max(1, Math.min(w, h) * 0.022);
+  const deep = tone === 'dark' || tone === 'black'; // kính tối: viền sáng, ánh sáng nhẹ
+  const shape = () => {
+    ctx.beginPath();
+    ctx.roundRect(x, y, w, h, r);
+  };
+
+  ctx.save();
+  shape();
+  ctx.clip();
+
+  // 1) làm mờ + tăng bão hòa phần nền phía sau nút để kính mang màu hình nền
+  ctx.filter = GLASS_BLUR;
+  ctx.drawImage(
+    snapshot,
+    x - GLASS_PAD,
+    y - GLASS_PAD,
+    w + GLASS_PAD * 2,
+    h + GLASS_PAD * 2,
+    x - GLASS_PAD,
+    y - GLASS_PAD,
+    w + GLASS_PAD * 2,
+    h + GLASS_PAD * 2,
+  );
+  ctx.filter = 'none';
+
+  // 2) phủ màu rất nhẹ
+  const tint = ctx.createLinearGradient(0, y, 0, y + h);
+  if (tone === 'black') {
+    // kính đen trong suốt: vẫn thấy nền mờ bên dưới nhưng ngả đen
+    tint.addColorStop(0, 'rgba(28,28,30,0.72)');
+    tint.addColorStop(1, 'rgba(0,0,0,0.82)');
+  } else if (tone === 'dark') {
+    tint.addColorStop(0, 'rgba(60,60,67,0.30)');
+    tint.addColorStop(1, 'rgba(60,60,67,0.20)');
+  } else if (light) {
+    tint.addColorStop(0, 'rgba(255,255,255,0.14)');
+    tint.addColorStop(1, 'rgba(255,255,255,0.05)');
+  } else {
+    // nền sáng: kính trắng đục nhẹ, đáy hơi xám trung tính để nút vẫn nổi trên nền trắng mà không bị đen
+    tint.addColorStop(0, 'rgba(255,255,255,0.38)');
+    tint.addColorStop(1, 'rgba(120,120,128,0.16)');
+  }
+  ctx.fillStyle = tint;
+  ctx.fillRect(x, y, w, h);
+
+  // 3) ánh sáng mờ ở phần trên (rất nhẹ, không thành vệt bóng)
+  const glow = ctx.createLinearGradient(0, y, 0, y + h * 0.4);
+  glow.addColorStop(0, `rgba(255,255,255,${tone === 'black' ? 0.1 : tone === 'dark' ? 0.06 : 0.12})`);
+  glow.addColorStop(1, 'rgba(255,255,255,0)');
+  ctx.fillStyle = glow;
+  ctx.fillRect(x, y, w, h * 0.4);
+  ctx.restore();
+
+  // 4) viền mảnh, mờ, hơi sáng hơn ở góc trên trái và góc dưới phải
+  const rim = ctx.createLinearGradient(x, y, x + w * 0.4, y + h);
+  const rc = !light && !deep ? '0,0,0' : '255,255,255'; // nền sáng: viền tối; kính đen: viền sáng
+  rim.addColorStop(0, `rgba(${rc},${deep ? 0.3 : 0.4})`);
+  rim.addColorStop(0.4, `rgba(${rc},0.07)`);
+  rim.addColorStop(0.7, `rgba(${rc},0.07)`);
+  rim.addColorStop(1, `rgba(${rc},${deep ? 0.2 : 0.3})`);
+  ctx.save();
+  ctx.lineWidth = edge;
+  ctx.strokeStyle = rim;
+  ctx.beginPath();
+  ctx.roundRect(x + edge / 2, y + edge / 2, w - edge, h - edge, Math.max(0, r - edge / 2));
+  ctx.stroke();
+  ctx.restore();
+}
+
+// Cả cột icon: giờ, wifi, quay lại, chia sẻ, thanh điều hướng, tìm kiếm. cx = tâm cột, s = nửa bề rộng nút.
+function drawGlassColumn(ctx, w, h, cx, s, mode) {
+  // dải bên phải giờ là nền đen -> icon, giờ, wifi đều trắng (?ui=dark để ép icon tối)
+  const light = mode !== 'dark';
+  const ink = light ? '#ffffff' : '#1d1d1f';
+
+  // chụp lại nền trước khi vẽ UI để làm lớp kính mờ
+  const snapshot = createCanvas(w, h);
+  canvasContext(snapshot).drawImage(ctx.canvas, 0, 0);
+
+  const NAV_BOTTOM = 0.887;
+  const searchY = 0.936; // nút tìm kiếm tách riêng bên dưới thanh nav
+
+  const circle = (cy, tone, scale = 1) =>
+    drawGlass(ctx, snapshot, cx - s * scale, cy * h - s * scale, s * scale * 2, s * scale * 2, s * scale, light, tone);
+  const pill = (top, bottom, tone) =>
+    drawGlass(ctx, snapshot, cx - s, top * h, s * 2, (bottom - top) * h, s, light, tone);
+
+  // vẽ hết các nút kính trước, icon đè lên sau
+  circle(0.293, 'dark'); // quay lại: kính tối như máy thật
+  pill(0.354, 0.487, 'clear'); // chia sẻ + "..."
+  pill(0.55, NAV_BOTTOM, 'clear'); // thanh điều hướng
+  circle(searchY, 'clear', 1); // tìm kiếm: nút tròn riêng
+
+  // vẽ icon trong hệ toạ độ đơn vị (1 = s), bóng rất nhẹ chỉ để tách icon khỏi nền
+  const icon = (y, draw) => {
+    ctx.save();
+    ctx.shadowColor = light ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)';
+    ctx.shadowBlur = s * 0.05;
+    ctx.shadowOffsetY = s * 0.02;
+    ctx.translate(cx, y * h);
+    ctx.scale(s, s);
+    ctx.strokeStyle = ink;
+    ctx.fillStyle = ink;
+    ctx.lineWidth = 0.12;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    draw();
+    ctx.restore();
+  };
+
+  // giờ
+  ctx.save();
+  ctx.fillStyle = ink;
+  ctx.font = `600 ${s * 0.8}px -apple-system, "SF Pro Text", Helvetica, Arial, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('9:41', cx, h * 0.148);
+  ctx.restore();
+
+  // vòng wifi chấm
+  icon(0.203, () => {
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * 0.95, Math.sin(a) * 0.95, 0.06, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0.25, 0.09, 0, Math.PI * 2);
+    ctx.fill();
+    for (const r of [0.32, 0.56]) {
+      ctx.beginPath();
+      ctx.arc(0, 0.25, r, -Math.PI * 0.75, -Math.PI * 0.25);
+      ctx.stroke();
+    }
+  });
+
+  // nút quay lại
+  icon(0.293, () => {
+    ctx.beginPath();
+    ctx.moveTo(0.12, -0.35);
+    ctx.lineTo(-0.2, 0);
+    ctx.lineTo(0.12, 0.35);
+    ctx.stroke();
+  });
+
+  // chia sẻ + "..."
+  icon(0.395, () => {
+    ctx.beginPath();
+    ctx.moveTo(-0.3, -0.05);
+    ctx.lineTo(-0.3, 0.4);
+    ctx.lineTo(0.3, 0.4);
+    ctx.lineTo(0.3, -0.05);
+    ctx.moveTo(0, 0.2);
+    ctx.lineTo(0, -0.5);
+    ctx.moveTo(-0.22, -0.28);
+    ctx.lineTo(0, -0.5);
+    ctx.lineTo(0.22, -0.28);
+    ctx.stroke();
+  });
+  icon(0.455, () => {
+    for (const x of [-0.3, 0, 0.3]) {
+      ctx.beginPath();
+      ctx.arc(x, 0, 0.07, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  });
+
+  // thanh điều hướng
+  icon(0.594, () => { // home
+    ctx.beginPath();
+    ctx.moveTo(-0.5, 0);
+    ctx.lineTo(0, -0.45);
+    ctx.lineTo(0.5, 0);
+    ctx.lineTo(0.38, 0);
+    ctx.lineTo(0.38, 0.45);
+    ctx.lineTo(-0.38, 0.45);
+    ctx.lineTo(-0.38, 0);
+    ctx.closePath();
+    ctx.fill();
+  });
+  icon(0.677, () => { // lưới
+    for (const [x, y] of [[-0.45, -0.45], [0.05, -0.45], [-0.45, 0.05], [0.05, 0.05]]) {
+      ctx.beginPath();
+      ctx.roundRect(x, y, 0.4, 0.4, 0.1);
+      ctx.fill();
+    }
+  });
+  icon(0.76, () => { // radio
+    ctx.beginPath();
+    ctx.arc(0, 0, 0.1, 0, Math.PI * 2);
+    ctx.fill();
+    for (const r of [0.3, 0.5]) {
+      ctx.beginPath();
+      ctx.arc(0, 0, r, -0.6, 0.6);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, r, Math.PI - 0.6, Math.PI + 0.6);
+      ctx.stroke();
+    }
+  });
+  icon(0.843, () => { // thư viện
+    ctx.beginPath();
+    ctx.moveTo(-0.25, -0.42);
+    ctx.lineTo(0.25, -0.42);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.roundRect(-0.38, -0.25, 0.76, 0.7, 0.12);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(-0.05, 0.25, 0.1, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.beginPath();
+    ctx.moveTo(0.05, 0.25);
+    ctx.lineTo(0.05, -0.08);
+    ctx.stroke();
+  });
+
+  // tìm kiếm (cùng tâm với đáy thanh điều hướng)
+  icon(searchY, () => {
+    ctx.beginPath();
+    ctx.arc(-0.08, -0.08, 0.3, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(0.14, 0.14);
+    ctx.lineTo(0.4, 0.4);
+    ctx.stroke();
+  });
+}
+// Màn ngoài: cột icon kính mờ. Tắt bằng ?ui=0, ép màu bằng ?ui=light (icon trắng) hoặc ?ui=dark.
+function drawOuterUi(ctx, w, h) {
+  const mode = new URLSearchParams(location.search).get('ui');
+  if (mode === '0' || mode === 'off') return;
+  try {
+    drawGlassColumn(ctx, w, h, w * (0.89 + (parseFloat(new URLSearchParams(location.search).get('ox') ?? '0.012') || 0)), OUTER_BUTTON, mode);
+  } catch (error) {
+    console.error('[duo] không vẽ được nút màn ngoài:', error);
+  }
+}
+
+// Màn trong khi mở ra: wifi ở trên, đèn pin + camera ở góc dưới phải (kiểu màn hình khoá iPhone).
+// Chỉnh vị trí dọc bằng WIFI_Y / TORCH_Y / CAMERA_Y (tỉ lệ theo chiều cao màn).
+function drawLockButtons(ctx, w, h, cx, s, mode, dy = 0) {
+  const light = inkIsLight(ctx, w, h, mode, cx - s * 0.6);
+  const ink = light ? '#ffffff' : '#1d1d1f';
+  const snapshot = createCanvas(w, h);
+  canvasContext(snapshot).drawImage(ctx.canvas, 0, 0);
+
+  const WIFI_Y = 0.12 + dy;
+  const CAMERA_Y = 0.866 + dy;
+  // hệ số bù cỡ nút đèn pin / camera, chỉnh nhanh bằng ?bs=1.3
+  const bs = parseFloat(new URLSearchParams(location.search).get('bs') ?? '1.2') || 1.2;
+  const sb = s * bs; // nút (và icon bên trong) to bằng bs lần nút màn ngoài
+  // khoảng cách giữa 2 nút = bg * đường kính nút, chỉnh nhanh bằng ?bg=0.3
+  const bg = parseFloat(new URLSearchParams(location.search).get('bg') ?? '0.25') || 0.25;
+  const TORCH_Y = CAMERA_Y - (2 * sb * (1 + bg)) / h;
+
+  // nút kính trước, icon đè lên sau
+  for (const cy of [TORCH_Y, CAMERA_Y]) {
+    drawGlass(ctx, snapshot, cx - sb, cy * h - sb, sb * 2, sb * 2, sb, light, 'clear');
+  }
+
+  const icon = (y, draw, forceWhite = false) => {
+    ctx.save();
+    const white = light || forceWhite;
+    ctx.shadowColor = white ? 'rgba(0,0,0,0.18)' : 'rgba(255,255,255,0.35)';
+    ctx.shadowBlur = s * 0.05;
+    ctx.shadowOffsetY = s * 0.02;
+    ctx.translate(cx, y * h);
+    ctx.scale(s, s);
+    ctx.strokeStyle = forceWhite ? '#ffffff' : ink;
+    ctx.fillStyle = forceWhite ? '#ffffff' : ink;
+    ctx.lineWidth = 0.12;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    draw();
+    ctx.restore();
+  };
+
+  // hệ số cỡ icon đèn pin / camera, chỉnh nhanh bằng ?is=1.1
+  const k = parseFloat(new URLSearchParams(location.search).get('is') ?? '1') || 1;
+
+  // giờ (copy từ màn ngoài, cách wifi 0.055 chiều cao)
+  ctx.save();
+  ctx.fillStyle = ink;
+  ctx.font = `600 ${s * 0.8}px -apple-system, "SF Pro Text", Helvetica, Arial, sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.textBaseline = 'middle';
+  ctx.fillText('9:41', cx, h * (WIFI_Y - 0.055));
+  ctx.restore();
+
+  // vòng wifi chấm (trên cùng)
+  icon(WIFI_Y, () => {
+    for (let i = 0; i < 14; i++) {
+      const a = (i / 14) * Math.PI * 2;
+      ctx.beginPath();
+      ctx.arc(Math.cos(a) * 0.95, Math.sin(a) * 0.95, 0.06, 0, Math.PI * 2);
+      ctx.fill();
+    }
+    ctx.beginPath();
+    ctx.arc(0, 0.25, 0.09, 0, Math.PI * 2);
+    ctx.fill();
+    for (const r of [0.32, 0.56]) {
+      ctx.beginPath();
+      ctx.arc(0, 0.25, r, -Math.PI * 0.75, -Math.PI * 0.25);
+      ctx.stroke();
+    }
+  });
+
+  // đèn pin
+  icon(TORCH_Y, () => {
+    ctx.scale((k * sb) / s, (k * sb) / s);
+    ctx.lineWidth = 0.12 / ((k * sb) / s); // nét bằng icon màn ngoài
+    ctx.beginPath();
+    ctx.roundRect(-0.24, -0.5, 0.48, 0.2, 0.06); // đầu đèn
+    ctx.fill();
+    ctx.beginPath();
+    ctx.roundRect(-0.15, -0.28, 0.3, 0.8, 0.09); // thân đèn
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, -0.02, 0.06, 0, Math.PI * 2); // nút bấm
+    ctx.fill();
+  });
+
+  // camera
+  icon(CAMERA_Y, () => {
+    ctx.scale((k * sb) / s, (k * sb) / s);
+    ctx.lineWidth = 0.12 / ((k * sb) / s); // nét bằng icon màn ngoài
+    ctx.beginPath();
+    ctx.roundRect(-0.5, -0.28, 1, 0.74, 0.14); // thân máy
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(-0.2, -0.28);
+    ctx.lineTo(-0.1, -0.45);
+    ctx.lineTo(0.1, -0.45);
+    ctx.lineTo(0.2, -0.28); // phần lồi phía trên
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.arc(0, 0.09, 0.2, 0, Math.PI * 2); // ống kinhs
+    ctx.stroke();
+  });
+}
+
+// Màn trong: đặt sát mép phải (nửa này luôn nét khi máy mở ra nửa chừng).
+// Shader chỉ hiện ~89% ảnh ở giữa nên tâm cột lùi vào theo 0.946 * w. Tắt riêng màn trong bằng ?innerui=0.
+function drawInnerUi(ctx, w, h) {
+  const params = new URLSearchParams(location.search);
+  const mode = params.get('ui');
+  if (mode === '0' || mode === 'off' || params.get('innerui') === '0') return;
+  if (window.__hideInnerUi) return;
+  // Tinh chỉnh nhanh: ?ix=0.01 (dương = sang phải, theo tỉ lệ bề rộng), ?iy=-0.02 (âm = lên trên, theo tỉ lệ chiều cao)
+  const ix = parseFloat(params.get('ix') ?? '0') || 0;
+  const iy = parseFloat(params.get('iy') ?? '0') || 0;
+  const s = OUTER_BUTTON; // cùng cỡ với cột nút màn ngoài
+  const cx = w * (0.946 + 0.025 + ix) - GLASS_BUTTON * 1.2 + 6 * RESOLUTION; // dời sát mép phải
+  try {
+    drawLockButtons(ctx, w, h, cx, s, mode, iy);
+  } catch (error) {
+    console.error('[duo] không vẽ được nút màn trong:', error);
+  }
+}
+
+async function loadPanelImage(src, panel, noUi = false) {
   const image = await loadImage(src);
   const canvas = createCanvas(panel === 'inner' ? INNER_WIDTH : OUTER_WIDTH, HEIGHT);
-  drawCover(canvasContext(canvas), image, canvas.width, canvas.height);
+  const context = canvasContext(canvas);
+  if (panel === 'outer' && !noUi) {
+    const ox = parseFloat(new URLSearchParams(location.search).get('ox') ?? '0.012') || 0;
+    const barCenter = canvas.width * (0.89 + ox); // cùng tâm với cột icon
+    const photoW = barCenter - OUTER_BUTTON - 16 * PT; // ảnh cách nút 16pt
+    context.fillStyle = '#000000';
+    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.save();
+    context.beginPath();
+    context.roundRect(0, 0, photoW, canvas.height, [0, 28 * PT, 28 * PT, 0]);
+    context.clip();
+    drawCover(context, image, photoW, canvas.height, 0, true);
+    context.restore();
+    drawOuterUi(context, canvas.width, canvas.height);
+  } else {
+    drawCover(context, image, canvas.width, canvas.height, 0, true);
+  }
+  if (panel === 'inner' && !noUi) drawInnerUi(context, canvas.width, canvas.height);
+  canvas._hasUi = true; // đã vẽ nút rồi, đừng vẽ lại
+  return canvas;
+}
+
+// Ảnh nào chưa có nút (ví dụ popup nạp bằng hàm khác) thì vẽ nút lên một bản sao.
+function withUi(image, panel) {
+  if (image._hasUi) return image;
+  const canvas = createCanvas(panel === 'inner' ? INNER_WIDTH : OUTER_WIDTH, HEIGHT);
+  const context = canvasContext(canvas);
+  drawCover(context, image, canvas.width, canvas.height, 0, true);
+  if (panel === 'outer') drawOuterUi(context, canvas.width, canvas.height);
+  if (panel === 'inner') drawInnerUi(context, canvas.width, canvas.height);
+  canvas._hasUi = true;
   return canvas;
 }
 
@@ -942,7 +1371,7 @@ function createFoldable(model, lockScreen, anisotropy, environment) {
   }
 
   function setPanelImage(kind, image) {
-    panelTextures[kind] = createTexture(image, anisotropy);
+    panelTextures[kind] = createTexture(withUi(image, kind), anisotropy);
     dress();
   }
 

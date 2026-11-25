@@ -1,18 +1,44 @@
 (() => {
+  const slugify = (s) =>
+    String(s || "")
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/đ/g, "d")
+      .replace(/Đ/g, "D")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+  // slug theo thương hiệu; trùng thương hiệu thì thêm tên file
+  window.projectSlug = (p) => {
+    const base = slugify(p.brand || p.name) || p.file || p.id;
+    const same = (window.PRODUCTS || []).filter((x) => slugify(x.brand || x.name) === base);
+    return same.length > 1 ? `${base}-${p.file}` : base;
+  };
+
   const DATA_DIR = "data";
-  const COUNT = { Mobbile: 7, Branding: 0, Other: 0, Website: 6 };
+  const COUNT = { Mobbile: 7, Branding: 0, Other: 0, Website: 0 };
+  // dự án Website nằm trong thư mục con: data/Website/<lĩnh vực>/<số>.js
+  const SUB_FILES = ["Website/beauty/1", "Website/food/1"];
 
   const cfg = document.currentScript ? document.currentScript.dataset : {};
   const list = (s) => (s ? s.split(",").map((x) => x.trim()).filter(Boolean) : []);
   const q = new URLSearchParams(location.search);
   const key = q.get("p") || q.get("id");
 
-  const dataFiles = Object.entries(COUNT).flatMap(([folder, n]) =>
-    Array.from({ length: n }, (_, i) => {
-      const file = `${folder.toLowerCase()}-${i + 1}`;
-      return { src: `${DATA_DIR}/${folder}/${file}.js`, folder, file };
-    }),
-  );
+  const dataFiles = [
+    ...Object.entries(COUNT).flatMap(([folder, n]) =>
+      Array.from({ length: n }, (_, i) => {
+        const file = `${folder.toLowerCase()}-${i + 1}`;
+        return { src: `${DATA_DIR}/${folder}/${file}.js`, folder, file };
+      }),
+    ),
+    ...SUB_FILES.map((path) => ({
+      src: `${DATA_DIR}/${path}.js`,
+      folder: path.split("/")[0],
+      file: path.toLowerCase().replace(/\//g, "-"),
+    })),
+  ];
 
   const load = (src) =>
     new Promise((done) => {

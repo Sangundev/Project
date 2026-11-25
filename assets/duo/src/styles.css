@@ -933,3 +933,10 @@ html.embed .viewer {
     font-size: 14px;
   }
 }
+/* Dòng mô tả nhỏ phía trên link (tab Figma) */
+.highlight-note {
+  margin: 0 0 8px;
+  font-size: 13px;
+  line-height: 1.4;
+  color: #6e6e73;
+}

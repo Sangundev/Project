@@ -8,7 +8,13 @@
   const q = new URLSearchParams(location.search);
   const key = q.get("p") || q.get("id");
   const findProduct = () =>
-    (window.PRODUCTS || []).find((p) => p.file === key || String(p.id) === key || p.name === key);
+    (window.PRODUCTS || []).find(
+      (p) =>
+        (window.projectSlug && window.projectSlug(p) === key) ||
+        p.file === key ||
+        String(p.id) === key ||
+        p.name === key
+    );
 
   // ---- ảnh đại diện cho "More Projects" ----
   const thumb = (p) => (Array.isArray(p.imgs) ? p.imgs[0] : "");
@@ -18,7 +24,7 @@
     (window.PRODUCTS || [])
       .filter((x) => x !== p && thumb(x))
       .slice(0, 4)
-      .map((x) => `<a href="detail.html?p=${encodeURIComponent(x.file)}">${imgTag(thumb(x), x.name)}<span>${esc(x.name)}</span></a>`)
+      .map((x) => `<a href="detail.html?p=${encodeURIComponent(window.projectSlug(x))}">${imgTag(thumb(x), x.name)}<span>${esc(x.name)}</span></a>`)
       .join("");
 
   // ---- các loại khối nội dung ----
@@ -324,7 +330,7 @@
       <p class="empty">Không tìm thấy dự án "${esc(key || "(trống)")}".</p>
       <p style="text-align:center;font-size:14px;color:#6e6e73;padding-bottom:80px">
         Đã nạp ${found.length} dự án:
-        ${found.map((x) => `<a style="color:#06c" href="detail.html?p=${encodeURIComponent(x.file)}">${esc(x.file)}</a>`).join(" · ") || "chưa có file nào"}
+        ${found.map((x) => `<a style="color:#06c" href="detail.html?p=${encodeURIComponent(window.projectSlug(x))}">${esc(x.file)}</a>`).join(" · ") || "chưa có file nào"}
       </p></div>`;
   });
 

@@ -4,6 +4,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <script>
+    // gốc của site (hoạt động cả ở / lẫn /My_portfolio/) để đường dẫn tương đối không vỡ khi URL là /home/mini-app
+    (function () {
+      var p = location.pathname;
+      var i = p.indexOf("/home");
+      var root = i > -1 ? p.slice(0, i + 1) : p.replace(/[^/]*$/, "");
+      document.write('<base href="' + root + '">');
+    })();
+  </script>
   <title>Dự án - Portfolio</title>
   <link rel="stylesheet" href="css/list.css">
 </head>
@@ -55,7 +64,7 @@
   <!-- loader nạp lần lượt: data-before -> dữ liệu data/ -> data-after -->
   <script src="js/common/loader.js"
     data-before="js/common/i18n.js,js/common/langbar.js,js/common/layout.js,js/common/nav.js,js/list/subnav.js,js/list/filters.js"
-    data-after="js/list/app.js,js/common/title.js,js/list/open-detail.js"></script>
+    data-after="js/list/app.js,js/common/title.js,js/list/duo-popup.js,js/list/open-detail.js"></script>
 </body>
 
 </html>

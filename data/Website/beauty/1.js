@@ -1,12 +1,12 @@
 // website 1
 window.PRODUCTS = window.PRODUCTS || [];
 window.PRODUCTS.push({
-  id: "website-1",
-  file: "website-1",
+  id: "website-beauty-1",
+  file: "beauty-1",
   name: "CoEm de T Beauty & More - Website Spa",
   imgs: [
-    "assets/website/website1/main.png",
-    "assets/website/website1/main1.png"
+    "assets/website/beauty/1/main.png",
+    "assets/website/beauty/1/main1.png"
   ],
   price: 0,
   color: "#8d8268",
@@ -18,7 +18,7 @@ window.PRODUCTS.push({
   kind: "case",
   brand: "CoEm de T",
   fit: "iPhone Duo",
-    label: "Web design",
+  label: "Web design",
   field: "Spa & Beauty",
 
   detail: {
@@ -32,12 +32,12 @@ window.PRODUCTS.push({
       { k: "Phạm vi", v: "Landing Page / Brand Look / Responsive" },
       { k: "Phối hợp", v: "Nasani / Khách hàng spa" }
     ],
-    hero: "assets/website/website1/img.png",
+    hero: "assets/website/beauty/1/img.png",
     duo: {
       src: "assets/duo/index.html",
-      outer: "assets/website/website1/outer.png",
-      inner: "assets/website/website1/inner.png",
-      portrait: "assets/website/website1/portrait.png",
+      outer: "assets/website/beauty/1/outer.png",
+      inner: "assets/website/beauty/1/inner.png",
+      portrait: "assets/website/beauty/1/portrait.png",
       figma: "https://www.figma.com/design/LINK-FIGMA-THAT-CUA-BAN"
     },
     sections: [
@@ -86,31 +86,31 @@ window.PRODUCTS.push({
               ["a","b"], ["b","c"],
               ["c","d","side"], ["c","e"], ["c","f","side"],
               ["d","g","vh"],
-              ["e","h"], ["e","i"], ["f","i"],
+              ["e","h"], ["f","i"],
               ["h","g"], ["i","g"]
             ]
           }
         ]
       },
 
-          /* ---------- 03 ---------- */
+      /* ---------- 03 ---------- */
       {
         label: "Kiến trúc thông tin",
         title: "Menu sáu mục, nội dung xếp theo nhịp cảm xúc, bằng chứng, hành động",
-        text: "Trang một cột cuộn dọc, menu đầu trang gồm Trang Chủ, Giới Thiệu, Dịch Vụ, Blog Chia Sẻ, Thư Viện và Liên Hệ. Mỗi mục gom một nhóm nội dung riêng, xếp theo nhịp khách đọc: thấy không gian, xem ưu đãi, tin bằng người thật, rồi mới đến liên hệ.",
+        text: "Trang một cột cuộn dọc, menu đầu trang gồm Trang Chủ, Giới Thiệu, Dịch Vụ, Blog Chia Sẻ, Thư Viện và Liên Hệ. Mỗi mục gom một nhóm nội dung riêng. Khi cuộn trang chủ, nội dung xếp theo nhịp khách đọc: giới thiệu, xem ưu đãi, thấy không gian, tin bằng người thật, rồi mới đến liên hệ.",
         blocks: [
           {
             type: "graph",
             dark: true,
             cols: 5,
             nodes: [
-              { id: "a",  t: "Trang chủ",        d: "Một trang, cuộn dọc",    c: 3, r: 1 },
+              { id: "a",  t: "Trang chủ",        d: "Cuộn dọc · hero 3 ảnh vòm", c: 3, r: 1 },
               { id: "b",  t: "Giới Thiệu",       d: "Cảm xúc đầu tiên",       c: 1, r: 2 },
               { id: "c",  t: "Dịch Vụ",          d: "Bảng giá & ưu đãi",      c: 2, r: 2 },
               { id: "d",  t: "Blog Chia Sẻ",     d: "Câu chuyện làm đẹp",     c: 3, r: 2 },
               { id: "e",  t: "Thư Viện",         d: "Bằng chứng thật",        c: 4, r: 2 },
               { id: "f",  t: "Liên Hệ",          d: "Hành động cuối",         c: 5, r: 2, hl: true },
-              { id: "b2", t: "Hero · 3 ảnh vòm",             d: "Bảng chào mừng · 4 điểm mạnh", c: 1, r: 3 },
+              { id: "b2", t: "Giới thiệu",                   d: "Tagline viết tay · 4 điểm mạnh", c: 1, r: 3 },
               { id: "c2", t: "Cuốn sổ dịch vụ",              d: "Nail · Mi · Gội đầu",   c: 2, r: 3 },
               { id: "d2", t: "2 bài viết",                   d: "Nail & Gội đầu spa",    c: 3, r: 3 },
               { id: "e2", t: "Gallery · video · feedback",   d: "Ảnh lệch nhịp · video lướt ngang", c: 4, r: 3 },
@@ -128,7 +128,7 @@ window.PRODUCTS.push({
       {
         label: "Cấu trúc trang chủ",
         title: "Cảm xúc trước, bằng chứng ở giữa, hành động ở cuối",
-        text: "Các khối được xếp theo nhịp khách đọc: thấy không gian, xem giá ưu đãi, tin bằng người thật, đọc thêm ở blog, rồi mới đến liên hệ.",
+        text: "Các khối được xếp theo nhịp khách đọc: chào mừng và giới thiệu, xem giá ưu đãi, thấy không gian, tin bằng người thật, đọc thêm ở blog, rồi mới đến liên hệ.",
         blocks: [
           {
             type: "graph",
@@ -151,7 +151,7 @@ window.PRODUCTS.push({
               ["g","h"]
             ]
           },
-          // { type: "image", src: "assets/website/website1/lamdep_lethithaotam_1156625_t8.png", alt: "Toàn bộ trang chủ" }
+          // { type: "image", src: "assets/website/beauty/1/lamdep_lethithaotam_1156625_t8.png", alt: "Toàn bộ trang chủ" }
         ]
       },
 
@@ -166,18 +166,17 @@ window.PRODUCTS.push({
             dark: true,
             cols: 5,
             nodes: [
-              { id: "a1", t: "Vào trang",            d: "Luồng cũ",                        c: 1, r: 1 },
-              { id: "a2", t: "Tự tìm không gian",    d: "Chưa rõ ở màn hình đầu",          c: 1, r: 2 },
-              { id: "a3", t: "Cuộn tìm dịch vụ",     d: "Nhiều khối, dễ rối",              c: 1, r: 3 },
-              { id: "a4", t: "Tìm địa chỉ",          d: "Thêm một bước",                   c: 1, r: 4 },
-              { id: "b1", t: "Vào trang",            d: "Luồng mới",                       c: 5, r: 1 },
-              { id: "b2", t: "Màn hình đầu",         d: "Ảnh vòm · địa chỉ · hotline",     c: 5, r: 2 },
-              { id: "b3", t: "Cuộn xem bằng chứng",  d: "Video · feedback nếu cần",        c: 5, r: 3 },
-              { id: "g",  t: "Gọi / gửi form",       d: "Hotline hoặc form ngắn",          c: 3, r: 5, hl: true }
+              { id: "s",  t: "Vào trang",                 d: "Điểm vào chung",                          c: 3, r: 1 },
+              { id: "a2", t: "Xem không gian",            d: "Luồng cũ · chưa rõ ở màn hình đầu",       c: 1, r: 2 },
+              { id: "a3", t: "Cuộn tìm dịch vụ & ưu đãi", d: "Luồng cũ · nhiều khối, dễ rối",           c: 1, r: 3 },
+              { id: "a4", t: "Tìm địa chỉ",               d: "Luồng cũ · thêm một bước",                c: 1, r: 4 },
+              { id: "b2", t: "Màn hình đầu",              d: "Luồng mới · ảnh vòm · địa chỉ · hotline", c: 5, r: 2 },
+              { id: "b3", t: "Cuộn xem bằng chứng",       d: "Luồng mới · video · feedback nếu cần",    c: 5, r: 3 },
+              { id: "g",  t: "Gọi / gửi form",            d: "Hotline hoặc form ngắn",                  c: 3, r: 5, hl: true }
             ],
             edges: [
-              ["a1","a2"], ["a2","a3"], ["a3","a4"], ["a4","g","vh"],
-              ["b1","b2"], ["b2","b3"], ["b3","g","vh"]
+              ["s","a2","vh"], ["a2","a3"], ["a3","a4"], ["a4","g","vh"],
+              ["s","b2","vh"], ["b2","b3"], ["b3","g","vh"], ["b2","g","vh"]
             ]
           }
         ]
@@ -189,7 +188,7 @@ window.PRODUCTS.push({
         title: "Dựng khung sườn cả trang trước khi thêm màu và ảnh",
         text: "Wireframe xếp sẵn tám khối theo nhịp đã chọn: hero, giới thiệu, ưu đãi, không gian, video, feedback, blog và liên hệ. Chốt chỗ cho từng khối rồi mới thêm màu, chữ và hình ảnh.",
         blocks: [
-          { type: "image", src: "assets/website/website1/wireframe.png", alt: "Wireframe giao diện mobile", trim: true }
+          { type: "image", src: "assets/website/beauty/1/wireframe.png", alt: "Wireframe giao diện mobile", trim: true }
         ]
       },
 
@@ -197,7 +196,7 @@ window.PRODUCTS.push({
       {
         label: "Thiết kế & tối ưu giao diện",
         title: "Từ lần đầu ghé trang đến lúc để lại thông tin, làm gọn từng bước",
-        text: "Sau kiểm chứng, giữ lại các giải pháp hiệu quả và tối ưu thêm ba điểm: không gian, video và đánh giá, liên hệ.",
+        text: "Từ wireframe đã chốt, hoàn thiện giao diện và tối ưu thêm ba điểm: không gian, video và đánh giá, liên hệ.",
         blocks: [
           {
             type: "module",
@@ -209,7 +208,7 @@ window.PRODUCTS.push({
               { k: "Sau", v: "Bố cục lệch nhịp + tagline" },
               { k: "Kết quả", v: "Dễ cảm nhận không gian" }
             ],
-            img: "assets/website/website1/img.png"
+            img: "assets/website/beauty/1/img.png"
           },
           {
             type: "module",
@@ -222,8 +221,8 @@ window.PRODUCTS.push({
               { k: "Kết quả", v: "Tăng độ tin cậy" }
             ],
             imgs: [
-              "assets/website/website1/Video.png",
-              "assets/website/website1/feedback.png"
+              "assets/website/beauty/1/Video.png",
+              "assets/website/beauty/1/feedback.png"
             ]
           },
           {
@@ -236,7 +235,7 @@ window.PRODUCTS.push({
               { k: "Sau", v: "Form + bản đồ một chỗ" },
               { k: "Kết quả", v: "Gửi thông tin dễ hơn" }
             ],
-            img: "assets/website/website1/register.png"
+            img: "assets/website/beauty/1/register.png"
           }
         ]
       },
@@ -252,9 +251,9 @@ window.PRODUCTS.push({
             type: "devices",
             active: "desktop",
             items: [
-              { key: "desktop", label: "Desktop", title: "Desktop.", desc: "Ba ảnh vòm xếp hàng ngang, đủ chỗ cho dịch vụ, ưu đãi và bản đồ trong một màn hình.", src: "assets/website/website1/lapptop.png", alt: "Giao diện trên laptop" },
-              { key: "tablet",  label: "Tablet",  title: "Tablet.",  desc: "Bố cục thu gọn dần, vẫn giữ nhịp: cảm xúc trước, bằng chứng ở giữa, hành động ở cuối.", src: "assets/website/website1/tabblet.png", alt: "Giao diện trên tablet" },
-              { key: "mobile",  label: "Mobile",  title: "Mobile.",  desc: "Một cột, nút gọi và biểu mẫu đặt ở vị trí dễ chạm. Đây là bản được thiết kế trước.", src: "assets/website/website1/Phone.png", alt: "Giao diện trên điện thoại" }
+              { key: "desktop", label: "Desktop", title: "Desktop.", desc: "Ba ảnh vòm xếp hàng ngang, đủ chỗ cho dịch vụ, ưu đãi và bản đồ trong một màn hình.", src: "assets/website/beauty/1/lapptop.png", alt: "Giao diện trên laptop" },
+              { key: "tablet",  label: "Tablet",  title: "Tablet.",  desc: "Bố cục thu gọn dần, vẫn giữ nhịp: cảm xúc trước, bằng chứng ở giữa, hành động ở cuối.", src: "assets/website/beauty/1/tabblet.png", alt: "Giao diện trên tablet" },
+              { key: "mobile",  label: "Mobile",  title: "Mobile.",  desc: "Một cột, nút gọi và biểu mẫu đặt ở vị trí dễ chạm. Đây là bản được thiết kế trước.", src: "assets/website/beauty/1/Phone.png", alt: "Giao diện trên điện thoại" }
             ]
           }
         ]
@@ -268,7 +267,7 @@ window.PRODUCTS.push({
         blocks: [
           {
             type: "flow",
-            items: ["Hiểu thương hiệu", "Chọn tông màu & hình ảnh", "Dựng bố cục", "Kiểm tra mobile", "Tối ưu liên tục"]
+            items: ["Hiểu thương hiệu & khách hàng", "Luồng người dùng & wireframe", "Thiết kế giao diện", "Kiểm tra đa thiết bị", "Tối ưu liên tục"]
           },
           {
             type: "metrics",
@@ -280,17 +279,15 @@ window.PRODUCTS.push({
           {
             type: "chips",
             items: [
-              { v: "Nâu ấm, xanh olive và kem be" },
               { v: "Ảnh vòm và họa tiết lá tạo bản sắc" },
               { v: "Chữ viết tay cho tagline, chữ serif cho tiêu đề" },
               { v: "Dẫn khách đến địa chỉ, hotline và form liên hệ" }
             ]
           },
-          { type: "image", src: "assets/website/website1/inner.png", alt: "Kết quả" }
+          { type: "image", src: "assets/website/beauty/1/inner.png", alt: "Kết quả" }
         ]
       }
     ],
-    
 
     contact: {
       email: "ban@email.com",
